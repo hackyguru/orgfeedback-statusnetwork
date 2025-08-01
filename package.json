@@ -1,0 +1,19 @@
+{
+  "name": "hellostatus",
+  "version": "1.0.0",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "get-total-orgs": "npx hardhat run scripts/getTotalOrganizations.ts --network statusTestnet",
+    "debug-feedback": "npx hardhat run scripts/debugFeedback.ts --network statusTestnet"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "description": "",
+  "devDependencies": {
+    "@nomicfoundation/hardhat-toolbox": "^6.1.0",
+    "dotenv": "^17.2.1",
+    "hardhat": "^2.26.1"
+  }
+}
