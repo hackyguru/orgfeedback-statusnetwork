@@ -98,10 +98,17 @@ export default function Home() {
         <div className="mb-10">
           <div className="flex items-center justify-between mb-8">
             <h1 className="text-3xl font-bold text-gray-800">
-              Dashboard
+              Howdy!
             </h1>
-            <div className="card-important px-4 py-2 rounded-full text-sm font-semibold shadow-sm" style={{ color: '#22262b' }}>
-              DETAILS
+            <div className="flex items-center space-x-4">
+              <div className="card-important px-4 py-2 rounded-full text-sm font-semibold shadow-sm" style={{ color: '#22262b' }}>
+                DETAILS
+              </div>
+              <img 
+                src="/poweredby.png" 
+                alt="Powered by" 
+                className="h-20 w-auto"
+              />
             </div>
           </div>
           

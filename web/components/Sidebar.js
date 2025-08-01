@@ -4,7 +4,7 @@ import Link from 'next/link';
 import { useState, useEffect, useMemo } from 'react';
 import { useRouter } from 'next/router';
 import toast from 'react-hot-toast';
-import { Sparkle, Home, MessageSquare, BarChart3, Settings, Wallet } from 'lucide-react';
+import { Sparkle, Home, MessageSquare, BarChart3, Settings, Wallet, LogOut } from 'lucide-react';
 import blockies from 'ethereum-blockies';
 
 const Sidebar = () => {
@@ -96,8 +96,7 @@ const Sidebar = () => {
         fixed left-0 top-0 h-full w-20 z-50 transform transition-transform duration-300 ease-in-out
         ${isMobileMenuOpen ? 'translate-x-0' : '-translate-x-full'}
         lg:translate-x-0
-      `}
-      style={{ background: '#f4f1eb' }}>
+      `}>
         <div className="flex flex-col h-full py-6">
           {/* Logo */}
           <div className="flex justify-center mb-8">
@@ -106,62 +105,75 @@ const Sidebar = () => {
             </Link>
           </div>
 
-          {/* Navigation - Centered in middle */}
-          <div className="flex-1 flex items-center justify-center">
-            <nav className="flex flex-col items-center space-y-6">
-              {navigationItems.map((item) => {
-                const isActive = isActivePath(item.path);
-                return (
-                  <Link
-                    key={item.path}
-                    href={item.path}
-                    onClick={() => setIsMobileMenuOpen(false)}
-                    className={`
-                      w-12 h-12 rounded-xl flex items-center justify-center transition-all duration-150 ease-in-out
-                      ${isActive 
-                        ? 'text-gray-800' 
-                        : 'text-gray-500 hover:text-gray-700'
-                      }
-                    `}
-                    style={isActive ? { background: '#cfc7b5' } : {}}
-                    title={item.label}
-                  >
-                    {item.icon}
-                  </Link>
-                );
-              })}
-            </nav>
-          </div>
+                          {/* Navigation - Centered in middle */}
+                <div className="flex-1 flex items-center justify-center">
+                  <nav className="flex flex-col items-center space-y-6 px-2 py-3 rounded-full" style={{ background: 'rgba(255, 255, 255, 0.8)' }}>
+                    {navigationItems.map((item) => {
+                      const isActive = isActivePath(item.path);
+                      return (
+                        <Link
+                          key={item.path}
+                          href={item.path}
+                          onClick={() => setIsMobileMenuOpen(false)}
+                          className={`
+                            w-12 h-12 flex items-center justify-center transition-all duration-150 ease-in-out
+                            ${isActive 
+                              ? 'text-gray-800' 
+                              : 'text-gray-500 hover:text-gray-700'
+                            }
+                          `}
+                          style={isActive ? { background: '#cfc7b5', borderRadius: '50%' } : {}}
+                          title={item.label}
+                        >
+                          {item.icon}
+                        </Link>
+                      );
+                    })}
+                  </nav>
+                </div>
 
           {/* User Profile / Wallet */}
           <div className="flex justify-center">
-            {isHydrated && isConnected ? (
-              <button
-                onClick={handleDisconnect}
-                className="w-12 h-12 rounded-full bg-[#cfc7b5] flex items-center justify-center text-white font-bold text-sm hover:opacity-80 transition-opacity shadow-md"
-                title={`Connected: ${formatAddress(address)}`}
-              >
-                <img 
-                  src={generateIdenticon(address)} 
-                  alt="Address identicon" 
-                  className="w-10 h-10 rounded-full"
-                />
-              </button>
-            ) : isHydrated ? (
-              <button
-                onClick={handleConnect}
-                disabled={isConnecting}
-                className="w-12 h-12 rounded-full border flex items-center justify-center text-gray-600 hover:text-gray-800 transition-all disabled:opacity-50 shadow-sm"
-                style={{ background: '#ffffff', borderColor: 'rgba(34, 38, 43, 0.2)' }}
-                title="Connect Wallet"
-              >
-                {isConnecting ? (
-                  <div className="animate-spin w-4 h-4 border-2 border-gray-400 border-t-transparent rounded-full"></div>
-                ) : (
-                  <Wallet className="w-5 h-5" />
-                )}
-              </button>
-            ) : null}
+            <div className="px-2 py-3 rounded-full" style={{ background: 'rgba(255, 255, 255, 0.8)' }}>
+              {isHydrated && isConnected ? (
+                <>
+                  <button
+                    onClick={handleDisconnect}
+                    className="w-12 h-12 rounded-full flex items-center justify-center hover:opacity-80 transition-opacity mb-2"
+                    title="Logout"
+                  >
+                    <LogOut className="w-5 h-5 text-gray-600" />
+                  </button>
+                  <button
+                    className="w-12 h-12 rounded-full flex items-center justify-center hover:opacity-80 transition-opacity"
+                    title={`Connected: ${formatAddress(address)}`}
+                  >
+                    <img 
+                      src={generateIdenticon(address)} 
+                      alt="Address identicon" 
+                      className="w-10 h-10 rounded-full"
+                    />
+                  </button>
+                </>
+              ) : isHydrated ? (
+                <button
+                  onClick={handleConnect}
+                  disabled={isConnecting}
+                  className="w-12 h-12 rounded-full flex items-center justify-center text-gray-600 hover:text-gray-800 transition-all disabled:opacity-50"
+                  title="Connect Wallet"
+                >
+                  {isConnecting ? (
+                    <div className="animate-spin w-4 h-4 border-2 border-gray-400 border-t-transparent rounded-full"></div>
+                  ) : (
+                    <Wallet className="w-5 h-5" />
+                  )}
+                </button>
+              ) : (
+                <div className="w-12 h-12 rounded-full flex items-center justify-center">
+                  <div className="w-4 h-4 bg-gray-300 rounded-full"></div>
+                </div>
+              )}
+            </div>
           </div>
         </div>
       </div>
