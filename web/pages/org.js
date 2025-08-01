@@ -1,7 +1,7 @@
 import { useAccount, useReadContract, useWriteContract, useWaitForTransactionReceipt } from 'wagmi';
 import { useState, useEffect } from 'react';
 import { useRouter } from 'next/router';
-import Navbar from '@/components/Navbar';
+import Sidebar from '@/components/Sidebar';
 import { CONTRACT_ADDRESS } from '@/lib/config';
 import { ORG_FEEDBACK_ABI } from '@/lib/abi';
 import toast from 'react-hot-toast';
@@ -88,16 +88,18 @@ export default function OrgPage() {
 
   if (!isConnected) {
     return (
-      <div className="min-h-screen bg-zinc-50">
-        <Navbar />
-        <div className="max-w-2xl mx-auto px-4 py-16">
-          <div className="bg-white rounded-lg p-8 border border-zinc-200 text-center">
-            <h1 className="text-2xl font-bold text-zinc-900 mb-4">
-              Organization Management
-            </h1>
-            <p className="text-zinc-600 mb-6">
-              Please connect your wallet to manage organizations
-            </p>
+      <div className="min-h-screen flex">
+        <Sidebar />
+        <div className="flex-1 p-8 lg:p-12">
+          <div className="max-w-6xl mx-auto">
+            <div className="glass-card-solid p-8 text-center">
+              <h1 className="text-3xl font-bold text-gray-800 mb-4">
+                Organization Management
+              </h1>
+              <p className="text-gray-700 mb-6">
+                Use the sidebar to connect your wallet and manage organizations
+              </p>
+            </div>
           </div>
         </div>
       </div>
@@ -106,14 +108,16 @@ export default function OrgPage() {
 
   if (isLoadingOrg) {
     return (
-      <div className="min-h-screen bg-zinc-50">
-        <Navbar />
-        <div className="max-w-2xl mx-auto px-4 py-16">
-          <div className="bg-white rounded-lg p-8 border border-zinc-200">
-            <div className="animate-pulse">
-              <div className="h-8 bg-zinc-200 rounded w-1/2 mb-4"></div>
-              <div className="h-4 bg-zinc-200 rounded w-full mb-2"></div>
-              <div className="h-4 bg-zinc-200 rounded w-3/4"></div>
+      <div className="min-h-screen flex">
+        <Sidebar />
+        <div className="flex-1 p-8 lg:p-12">
+          <div className="max-w-6xl mx-auto">
+            <div className="glass-card-solid p-8">
+              <div className="animate-pulse">
+                <div className="h-8 bg-gray-300 rounded w-1/2 mb-4"></div>
+                <div className="h-4 bg-gray-300 rounded w-full mb-2"></div>
+                <div className="h-4 bg-gray-300 rounded w-3/4"></div>
+              </div>
             </div>
           </div>
         </div>
@@ -122,29 +126,30 @@ export default function OrgPage() {
   }
 
   return (
-    <div className="min-h-screen bg-zinc-50">
-      <Navbar />
+    <div className="min-h-screen flex">
+      <Sidebar />
       
-      <div className="max-w-2xl mx-auto px-4 py-8">
-        <h1 className="text-3xl font-bold text-zinc-900 mb-8">
+      <div className="flex-1 p-8 lg:p-12">
+        <div className="max-w-6xl mx-auto">
+        <h1 className="text-3xl font-bold text-gray-800 mb-6">
           Organization Management
         </h1>
 
         {ownedOrg ? (
           // User already owns an organization
-          <div className="bg-white rounded-lg p-8 border border-zinc-200 mb-8">
-            <h2 className="text-2xl font-bold text-zinc-900 mb-6">
+          <div className="glass-card-solid p-8 mb-8">
+            <h2 className="text-2xl font-bold text-gray-800 mb-6">
               Your Organization
             </h2>
             
             <div className="mb-6">
-              <h3 className="text-lg font-semibold text-zinc-900 mb-2">
+              <h3 className="text-lg font-semibold text-gray-800 mb-2">
                 {ownedOrg.name}
               </h3>
-              <p className="text-zinc-600 leading-relaxed mb-4">
+              <p className="text-gray-700 leading-relaxed mb-4">
                 {ownedOrg.description}
               </p>
-              <div className="text-sm text-zinc-500">
+              <div className="text-sm text-zinc-500 font-mono">
                 Organization ID: {address}
               </div>
             </div>
@@ -152,13 +157,15 @@ export default function OrgPage() {
             <div className="flex flex-col sm:flex-row gap-4">
               <button
                 onClick={() => router.push(`/org/${address}`)}
-                className="bg-zinc-900 text-white px-6 py-3 rounded-lg font-medium hover:bg-zinc-800 transition-colors"
+                className="px-6 py-3 rounded-lg font-semibold hover:opacity-90 transition-all transform hover:scale-105"
+                style={{ background: '#22262b', color: '#ffffff' }}
               >
                 Manage Members
               </button>
               <button
                 onClick={() => router.push('/feedback/new')}
-                className="bg-zinc-100 text-zinc-800 px-6 py-3 rounded-lg font-medium hover:bg-zinc-200 transition-colors"
+                className="px-6 py-3 rounded-lg font-medium hover:opacity-90 transition-all transform hover:scale-105"
+                style={{ background: '#cfc7b5', color: '#22262b' }}
               >
                 Send Feedback
               </button>
@@ -166,19 +173,19 @@ export default function OrgPage() {
           </div>
         ) : (
           // User doesn't own an organization yet
-          <div className="bg-white rounded-lg p-8 border border-zinc-200">
-            <h2 className="text-2xl font-bold text-zinc-900 mb-6">
+          <div className="glass-card-solid p-8">
+            <h2 className="text-2xl font-bold text-gray-800 mb-6">
               Create Your Organization
             </h2>
             
-            <p className="text-zinc-600 mb-8">
+            <p className="text-gray-700 mb-8">
               Each wallet address can create only one organization. Once created, 
               you'll be able to add members and manage feedback for your team.
             </p>
 
             <form onSubmit={handleCreateOrganization} className="space-y-6">
               <div>
-                <label htmlFor="orgName" className="block text-sm font-medium text-zinc-700 mb-2">
+                <label htmlFor="orgName" className="block text-sm font-medium text-gray-700 mb-2">
                   Organization Name *
                 </label>
                 <input
@@ -187,13 +194,13 @@ export default function OrgPage() {
                   value={orgName}
                   onChange={(e) => setOrgName(e.target.value)}
                   placeholder="Enter your organization name"
-                  className="w-full px-4 py-3 border border-zinc-300 rounded-lg focus:ring-2 focus:ring-zinc-500 focus:border-transparent outline-none transition-colors"
+                  className="w-full px-4 py-3 bg-gray-100 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#cfc7b5] focus:border-transparent outline-none transition-colors text-gray-800 placeholder-gray-500"
                   disabled={isCreating || isConfirming}
                 />
               </div>
 
               <div>
-                <label htmlFor="orgDescription" className="block text-sm font-medium text-zinc-700 mb-2">
+                <label htmlFor="orgDescription" className="block text-sm font-medium text-gray-700 mb-2">
                   Description *
                 </label>
                 <textarea
@@ -202,16 +209,16 @@ export default function OrgPage() {
                   onChange={(e) => setOrgDescription(e.target.value)}
                   placeholder="Describe your organization and its purpose"
                   rows={4}
-                  className="w-full px-4 py-3 border border-zinc-300 rounded-lg focus:ring-2 focus:ring-zinc-500 focus:border-transparent outline-none transition-colors resize-none"
+                  className="w-full px-4 py-3 bg-gray-100 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#cfc7b5] focus:border-transparent outline-none transition-colors resize-none text-gray-800 placeholder-gray-500"
                   disabled={isCreating || isConfirming}
                 />
               </div>
 
-              <div className="bg-zinc-50 border border-zinc-200 rounded-lg p-4">
-                <h4 className="font-medium text-zinc-900 mb-2">
+              <div className="glass-card p-4">
+                <h4 className="font-medium text-gray-800 mb-2">
                   Important Notes:
                 </h4>
-                <ul className="text-sm text-zinc-600 space-y-1">
+                <ul className="text-sm text-gray-700 space-y-1">
                   <li>• Each wallet can only create one organization</li>
                   <li>• You will automatically become a member of your organization</li>
                   <li>• Organization ID will be your wallet address</li>
@@ -222,11 +229,12 @@ export default function OrgPage() {
               <button
                 type="submit"
                 disabled={isCreating || isConfirming || !orgName.trim() || !orgDescription.trim()}
-                className="w-full bg-zinc-900 text-white px-6 py-3 rounded-lg font-medium hover:bg-zinc-800 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                className="w-full px-6 py-3 rounded-lg font-semibold hover:opacity-90 transition-all transform hover:scale-105 disabled:opacity-50 disabled:cursor-not-allowed disabled:transform-none"
+                style={{ background: '#22262b', color: '#ffffff' }}
               >
                 {isCreating || isConfirming ? (
                   <div className="flex items-center justify-center space-x-2">
-                    <div className="animate-spin h-4 w-4 border-2 border-white border-t-transparent rounded-full"></div>
+                    <div className="animate-spin h-4 w-4 border-2 border-gray-600 border-t-transparent rounded-full"></div>
                     <span>
                       {isCreating ? 'Creating...' : 'Confirming...'}
                     </span>
@@ -238,6 +246,7 @@ export default function OrgPage() {
             </form>
           </div>
         )}
+        </div>
       </div>
     </div>
   );

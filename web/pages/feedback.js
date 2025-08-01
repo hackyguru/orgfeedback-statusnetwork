@@ -1,7 +1,7 @@
 import { useAccount, useReadContract } from 'wagmi';
 import { useState, useEffect } from 'react';
 import dynamic from 'next/dynamic';
-import Navbar from '@/components/Navbar';
+import Sidebar from '@/components/Sidebar';
 import { CONTRACT_ADDRESS } from '@/lib/config';
 import { ORG_FEEDBACK_ABI } from '@/lib/abi';
 import Link from 'next/link';
@@ -209,16 +209,18 @@ function FeedbackPageContent() {
 
   if (!isConnected) {
     return (
-      <div className="min-h-screen bg-zinc-50">
-        <Navbar />
-        <div className="max-w-4xl mx-auto px-4 py-16">
-          <div className="bg-white rounded-lg p-8 border border-zinc-200 text-center">
-            <h1 className="text-2xl font-bold text-zinc-900 mb-4">
-              Feedback Center
-            </h1>
-            <p className="text-zinc-600 mb-6">
-              Please connect your wallet to view your feedback
-            </p>
+      <div className="min-h-screen flex">
+        <Sidebar />
+        <div className="flex-1 p-8 lg:p-12">
+          <div className="max-w-6xl mx-auto">
+            <div className="glass-card-solid p-8 text-center">
+              <h1 className="text-2xl font-bold text-gray-800 mb-4">
+                Feedback Center
+              </h1>
+              <p className="text-gray-700 mb-6">
+                Use the sidebar to connect your wallet and view your feedback
+              </p>
+            </div>
           </div>
         </div>
       </div>
@@ -226,19 +228,21 @@ function FeedbackPageContent() {
   }
 
   return (
-    <div className="min-h-screen bg-zinc-50">
-      <Navbar />
+    <div className="min-h-screen flex">
+      <Sidebar />
       
-      <div className="max-w-6xl mx-auto px-4 py-8">
+      <div className="flex-1 p-8 lg:p-12">
+        <div className="max-w-6xl mx-auto">
         {/* Header */}
         <div className="mb-8">
           <div className="flex justify-between items-center mb-6">
-            <h1 className="text-3xl font-bold text-zinc-900">
+            <h1 className="text-3xl font-bold text-gray-800">
               Feedback Center
             </h1>
             <Link
               href="/feedback/new"
-              className="bg-zinc-900 text-white px-6 py-3 rounded-lg font-medium hover:bg-zinc-800 transition-colors"
+              className="px-6 py-3 rounded-lg font-semibold hover:opacity-90 transition-all transform hover:scale-105"
+              style={{ background: '#22262b', color: '#ffffff' }}
             >
               Send Feedback
             </Link>
@@ -247,7 +251,7 @@ function FeedbackPageContent() {
           {/* Stats */}
           <div className="grid grid-cols-1 md:grid-cols-4 gap-6 mb-8">
             <div className="bg-white rounded-lg p-6 border border-zinc-200">
-              <div className="text-2xl font-bold text-zinc-900">
+              <div className="text-2xl font-bold text-gray-800">
                 {feedbackCount ? feedbackCount.toString() : '0'}
               </div>
               <div className="text-zinc-600">
@@ -255,7 +259,7 @@ function FeedbackPageContent() {
               </div>
             </div>
             <div className="bg-white rounded-lg p-6 border border-zinc-200">
-              <div className="text-2xl font-bold text-zinc-900">
+              <div className="text-2xl font-bold text-gray-800">
                 {counts.all}
               </div>
               <div className="text-zinc-600">
@@ -263,7 +267,7 @@ function FeedbackPageContent() {
               </div>
             </div>
             <div className="bg-white rounded-lg p-6 border border-zinc-200">
-              <div className="text-2xl font-bold text-zinc-900">
+              <div className="text-2xl font-bold text-gray-800">
                 {counts.sent}
               </div>
               <div className="text-zinc-600">
@@ -271,7 +275,7 @@ function FeedbackPageContent() {
               </div>
             </div>
             <div className="bg-white rounded-lg p-6 border border-zinc-200">
-              <div className="text-2xl font-bold text-zinc-900">
+              <div className="text-2xl font-bold text-gray-800">
                 {counts.received}
               </div>
               <div className="text-zinc-600">
@@ -287,7 +291,7 @@ function FeedbackPageContent() {
                 onClick={() => setFilterType('all')}
                 className={`px-4 py-2 rounded-lg font-medium transition-colors ${
                   filterType === 'all'
-                    ? 'bg-zinc-900 text-white'
+                    ? 'bg-zinc-900 text-gray-800'
                     : 'bg-zinc-100 text-zinc-700 hover:bg-zinc-200'
                 }`}
               >
@@ -297,7 +301,7 @@ function FeedbackPageContent() {
                 onClick={() => setFilterType('sent')}
                 className={`px-4 py-2 rounded-lg font-medium transition-colors ${
                   filterType === 'sent'
-                    ? 'bg-zinc-900 text-white'
+                    ? 'bg-zinc-900 text-gray-800'
                     : 'bg-zinc-100 text-zinc-700 hover:bg-zinc-200'
                 }`}
               >
@@ -307,7 +311,7 @@ function FeedbackPageContent() {
                 onClick={() => setFilterType('received')}
                 className={`px-4 py-2 rounded-lg font-medium transition-colors ${
                   filterType === 'received'
-                    ? 'bg-zinc-900 text-white'
+                    ? 'bg-zinc-900 text-gray-800'
                     : 'bg-zinc-100 text-zinc-700 hover:bg-zinc-200'
                 }`}
               >
@@ -318,7 +322,7 @@ function FeedbackPageContent() {
                   onClick={() => setFilterType('admin')}
                   className={`px-4 py-2 rounded-lg font-medium transition-colors ${
                     filterType === 'admin'
-                      ? 'bg-zinc-900 text-white'
+                      ? 'bg-zinc-900 text-gray-800'
                       : 'bg-zinc-100 text-zinc-700 hover:bg-zinc-200'
                   }`}
                 >
@@ -334,7 +338,8 @@ function FeedbackPageContent() {
           <button
             onClick={fetchFeedbacks}
             disabled={isLoadingFeedbacks}
-            className="bg-green-600 text-white px-4 py-2 rounded hover:bg-green-700 disabled:opacity-50"
+                          className="px-4 py-2 rounded hover:opacity-90 disabled:opacity-50"
+              style={{ background: '#22262b', color: '#ffffff' }}
           >
             {isLoadingFeedbacks ? '🔄 Loading...' : '🔄 Refresh Feedbacks'}
           </button>
@@ -385,8 +390,8 @@ function FeedbackPageContent() {
               />
             ))
           ) : (
-            <div className="bg-white rounded-lg p-12 border border-zinc-200 text-center">
-              <div className="text-zinc-500 mb-4">
+            <div className="glass-card-solid p-12 text-center">
+              <div className="text-gray-700 mb-4">
                 {filterType === 'all' ? (
                   "You don't have any accessible feedback yet"
                 ) : filterType === 'sent' ? (
@@ -397,7 +402,7 @@ function FeedbackPageContent() {
                   "No feedback to review as admin"
                 )}
               </div>
-              <p className="text-zinc-400 text-sm mb-6">
+              <p className="text-gray-700 text-sm mb-6">
                 {filterType === 'sent' || filterType === 'all' ? (
                   "Start by sending feedback to your team members"
                 ) : (
@@ -407,13 +412,15 @@ function FeedbackPageContent() {
               {(filterType === 'sent' || filterType === 'all') && (
                 <Link
                   href="/feedback/new"
-                  className="inline-block bg-zinc-900 text-white px-6 py-3 rounded-lg font-medium hover:bg-zinc-800 transition-colors"
+                  className="inline-block px-6 py-3 rounded-lg font-semibold hover:opacity-90 transition-all transform hover:scale-105"
+                  style={{ background: '#22262b', color: '#ffffff' }}
                 >
                   Send Your First Feedback
                 </Link>
               )}
             </div>
           )}
+        </div>
         </div>
       </div>
     </div>
@@ -424,17 +431,19 @@ function FeedbackPageContent() {
 export default dynamic(() => Promise.resolve(FeedbackPageContent), {
   ssr: false,
   loading: () => (
-    <div className="min-h-screen bg-zinc-50">
-      <div className="max-w-6xl mx-auto px-4 py-8">
-        <div className="animate-pulse space-y-6">
-          <div className="h-8 bg-zinc-200 rounded w-64"></div>
-          <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
-            {[...Array(4)].map((_, i) => (
-              <div key={i} className="bg-white rounded-lg p-6 border border-zinc-200">
-                <div className="h-8 bg-zinc-200 rounded w-16 mb-2"></div>
-                <div className="h-4 bg-zinc-200 rounded w-32"></div>
-              </div>
-            ))}
+    <div className="min-h-screen flex">
+      <div className="flex-1 p-8 lg:p-12">
+        <div className="max-w-6xl mx-auto">
+          <div className="animate-pulse space-y-6">
+            <div className="h-8 bg-gray-300 rounded w-64"></div>
+            <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
+              {[...Array(4)].map((_, i) => (
+                <div key={i} className="glass-card-solid p-6">
+                  <div className="h-8 bg-gray-300 rounded w-16 mb-2"></div>
+                  <div className="h-4 bg-gray-300 rounded w-32"></div>
+                </div>
+              ))}
+            </div>
           </div>
         </div>
       </div>

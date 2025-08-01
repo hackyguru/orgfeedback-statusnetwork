@@ -1,7 +1,7 @@
 import { useAccount, useReadContract, useWriteContract, useWaitForTransactionReceipt } from 'wagmi';
 import { useState, useEffect } from 'react';
 import { useRouter } from 'next/router';
-import Navbar from '@/components/Navbar';
+import Sidebar from '@/components/Sidebar';
 import { CONTRACT_ADDRESS } from '@/lib/config';
 import { ORG_FEEDBACK_ABI } from '@/lib/abi';
 // No encryption imports needed
@@ -145,16 +145,18 @@ export default function NewFeedbackPage() {
 
   if (!isConnected) {
     return (
-      <div className="min-h-screen bg-zinc-50">
-        <Navbar />
-        <div className="max-w-2xl mx-auto px-4 py-16">
-          <div className="bg-white rounded-lg p-8 border border-zinc-200 text-center">
-            <h1 className="text-2xl font-bold text-zinc-900 mb-4">
-              Send Feedback
-            </h1>
-            <p className="text-zinc-600 mb-6">
-              Please connect your wallet to send feedback
-            </p>
+      <div className="min-h-screen flex">
+        <Sidebar />
+        <div className="flex-1 p-8 lg:p-12">
+          <div className="max-w-6xl mx-auto">
+            <div className="glass-card-solid p-8 text-center">
+              <h1 className="text-3xl font-bold text-gray-800 mb-4">
+                Send Feedback
+              </h1>
+              <p className="text-gray-700 mb-6">
+                Please connect your wallet to send feedback
+              </p>
+            </div>
           </div>
         </div>
       </div>
@@ -164,8 +166,8 @@ export default function NewFeedbackPage() {
   // No encryption check needed
 
   return (
-    <div className="min-h-screen bg-zinc-50">
-      <Navbar />
+    <div className="min-h-screen flex">
+      <Sidebar />
       
       <div className="max-w-2xl mx-auto px-4 py-8">
         <div className="mb-8">
@@ -177,31 +179,31 @@ export default function NewFeedbackPage() {
               ← Back to Feedback
             </Link>
           </div>
-          <h1 className="text-3xl font-bold text-zinc-900">
+          <h1 className="text-3xl font-bold text-gray-800">
             Send Encrypted Feedback
           </h1>
-          <p className="text-zinc-600 mt-2">
+          <p className="text-gray-700 mt-2">
             Send secure, encrypted feedback to members of your organization
           </p>
         </div>
 
         {userOrgs.length === 0 ? (
-          <div className="bg-white rounded-lg p-8 border border-zinc-200 text-center">
-            <h2 className="text-xl font-bold text-zinc-900 mb-4">
+          <div className="glass-card-solid p-8 text-center">
+            <h2 className="text-xl font-bold text-gray-800 mb-4">
               No Organizations
             </h2>
-            <p className="text-zinc-600 mb-6">
+            <p className="text-gray-700 mb-6">
               You need to be a member of an organization to send feedback.
             </p>
             <Link
               href="/org"
-              className="inline-block bg-zinc-900 text-white px-6 py-3 rounded-lg font-medium hover:bg-zinc-800 transition-colors"
+              className="inline-block bg-zinc-900 text-gray-800 px-6 py-3 rounded-lg font-medium hover:bg-zinc-800 transition-colors"
             >
               Create or Join Organization
             </Link>
           </div>
         ) : (
-          <div className="bg-white rounded-lg p-8 border border-zinc-200">
+          <div className="glass-card-solid p-8">
             <form onSubmit={handleSendFeedback} className="space-y-6">
               {/* Organization Selection */}
               <div>
@@ -268,8 +270,8 @@ export default function NewFeedbackPage() {
               </div>
 
               {/* Anonymity Settings */}
-              <div className="bg-zinc-50 border border-zinc-200 rounded-lg p-4">
-                <h3 className="font-medium text-zinc-900 mb-4">
+              <div className="flex border border-zinc-200 rounded-lg p-4">
+                <h3 className="font-medium text-gray-800 mb-4">
                   Identity Revelation Settings
                 </h3>
                 <div className="space-y-3">
@@ -278,11 +280,11 @@ export default function NewFeedbackPage() {
                       type="checkbox"
                       checked={revealToReceiver}
                       onChange={(e) => setRevealToReceiver(e.target.checked)}
-                      className="w-4 h-4 text-zinc-600 border-zinc-300 rounded focus:ring-zinc-500"
+                      className="w-4 h-4 text-gray-700 border-zinc-300 rounded focus:ring-zinc-500"
                       disabled={isSending || isConfirming}
                     />
                     <div>
-                      <div className="text-sm font-medium text-zinc-900">
+                      <div className="text-sm font-medium text-gray-800">
                         Reveal my identity to the receiver
                       </div>
                       <div className="text-xs text-zinc-500">
@@ -296,11 +298,11 @@ export default function NewFeedbackPage() {
                       type="checkbox"
                       checked={revealToAdmin}
                       onChange={(e) => setRevealToAdmin(e.target.checked)}
-                      className="w-4 h-4 text-zinc-600 border-zinc-300 rounded focus:ring-zinc-500"
+                      className="w-4 h-4 text-gray-700 border-zinc-300 rounded focus:ring-zinc-500"
                       disabled={isSending || isConfirming}
                     />
                     <div>
-                      <div className="text-sm font-medium text-zinc-900">
+                      <div className="text-sm font-medium text-gray-800">
                         Reveal my identity to the organization admin
                       </div>
                       <div className="text-xs text-zinc-500">
@@ -312,8 +314,8 @@ export default function NewFeedbackPage() {
               </div>
 
               {/* Privacy Info */}
-              <div className="bg-zinc-50 border border-zinc-200 rounded-lg p-4">
-                <h3 className="font-medium text-zinc-900 mb-2">
+              <div className="flex border border-zinc-200 rounded-lg p-4">
+                <h3 className="font-medium text-gray-800 mb-2">
                   🔐 Privacy Settings
                 </h3>
                 <ul className="text-sm text-zinc-700 space-y-1">
@@ -334,7 +336,7 @@ export default function NewFeedbackPage() {
                   !receiverAddress.trim() || 
                   !message.trim()
                 }
-                className="w-full bg-zinc-900 text-white px-6 py-4 rounded-lg font-medium hover:bg-zinc-800 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                className="w-full bg-zinc-900 text-gray-800 px-6 py-4 rounded-lg font-medium hover:bg-zinc-800 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
               >
                 {isSending || isConfirming ? (
                   <div className="flex items-center justify-center space-x-2">

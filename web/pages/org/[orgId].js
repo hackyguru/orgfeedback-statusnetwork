@@ -1,7 +1,7 @@
 import { useRouter } from 'next/router';
 import { useAccount, useReadContract, useWriteContract, useWaitForTransactionReceipt } from 'wagmi';
 import { useState, useEffect } from 'react';
-import Navbar from '@/components/Navbar';
+import Sidebar from '@/components/Sidebar';
 import { CONTRACT_ADDRESS } from '@/lib/config';
 import { ORG_FEEDBACK_ABI } from '@/lib/abi';
 import toast from 'react-hot-toast';
@@ -140,54 +140,53 @@ export default function OrgDetailPage() {
 
   if (!isConnected) {
     return (
-      <div className="min-h-screen bg-zinc-50">
-        <Navbar />
-        <div className="max-w-4xl mx-auto px-4 py-16">
-          <div className="bg-white rounded-lg p-8 border border-zinc-200 text-center">
-            <h1 className="text-2xl font-bold text-zinc-900 mb-4">
-              Organization Details
-            </h1>
-            <p className="text-zinc-600 mb-6">
-              Please connect your wallet to view organization details
-            </p>
+      <div className="min-h-screen flex">
+        <Sidebar />
+        <div className="flex-1 p-8 lg:p-12">
+          <div className="max-w-6xl mx-auto">
+            <div className="glass-card-solid p-8 text-center">
+              <h1 className="text-3xl font-bold text-gray-800 mb-4">
+                Organization Details
+              </h1>
+              <p className="text-gray-700 mb-6">
+                Please connect your wallet to view organization details
+              </p>
+            </div>
           </div>
         </div>
-      </div>
     );
   }
 
   if (isLoadingOrg) {
     return (
-      <div className="min-h-screen bg-zinc-50">
-        <Navbar />
-        <div className="max-w-4xl mx-auto px-4 py-8">
-          <div className="bg-white rounded-lg p-8 border border-zinc-200">
+      <div className="min-h-screen flex">
+        <Sidebar />
+        <div className="flex-1 p-8 lg:p-12">
+          <div className="glass-card-solid p-8">
             <div className="animate-pulse">
               <div className="h-8 bg-zinc-200 rounded w-1/2 mb-4"></div>
               <div className="h-4 bg-zinc-200 rounded w-full mb-2"></div>
               <div className="h-4 bg-zinc-200 rounded w-3/4"></div>
-            </div>
           </div>
-        </div>
       </div>
     );
   }
 
   if (!orgData) {
     return (
-      <div className="min-h-screen bg-zinc-50">
-        <Navbar />
-        <div className="max-w-4xl mx-auto px-4 py-8">
-          <div className="bg-white rounded-lg p-8 border border-zinc-200 text-center">
-            <h1 className="text-2xl font-bold text-zinc-900 mb-4">
+      <div className="min-h-screen flex">
+        <Sidebar />
+        <div className="flex-1 p-8 lg:p-12">
+          <div className="glass-card-solid p-8 text-center">
+            <h1 className="text-2xl font-bold text-gray-800 mb-4">
               Organization Not Found
             </h1>
-            <p className="text-zinc-600 mb-6">
+            <p className="text-gray-700 mb-6">
               The organization you're looking for doesn't exist.
             </p>
             <Link
               href="/"
-              className="inline-block bg-zinc-900 text-white px-6 py-3 rounded-lg font-medium hover:bg-zinc-800 transition-colors"
+              className="inline-block bg-zinc-900 text-gray-800 px-6 py-3 rounded-lg font-medium hover:bg-zinc-800 transition-colors"
             >
               Go Back Home
             </Link>
@@ -199,19 +198,19 @@ export default function OrgDetailPage() {
 
   if (!isMember) {
     return (
-      <div className="min-h-screen bg-zinc-50">
-        <Navbar />
-        <div className="max-w-4xl mx-auto px-4 py-8">
-          <div className="bg-white rounded-lg p-8 border border-zinc-200 text-center">
-            <h1 className="text-2xl font-bold text-zinc-900 mb-4">
+      <div className="min-h-screen flex">
+        <Sidebar />
+        <div className="flex-1 p-8 lg:p-12">
+          <div className="glass-card-solid p-8 text-center">
+            <h1 className="text-2xl font-bold text-gray-800 mb-4">
               Access Denied
             </h1>
-            <p className="text-zinc-600 mb-6">
+            <p className="text-gray-700 mb-6">
               You are not a member of this organization.
             </p>
             <Link
               href="/"
-              className="inline-block bg-zinc-900 text-white px-6 py-3 rounded-lg font-medium hover:bg-zinc-800 transition-colors"
+              className="inline-block bg-zinc-900 text-gray-800 px-6 py-3 rounded-lg font-medium hover:bg-zinc-800 transition-colors"
             >
               Go Back Home
             </Link>
@@ -222,10 +221,10 @@ export default function OrgDetailPage() {
   }
 
   return (
-    <div className="min-h-screen bg-zinc-50">
-      <Navbar />
+    <div className="min-h-screen flex">
+      <Sidebar />
       
-      <div className="max-w-4xl mx-auto px-4 py-8">
+      <div className="flex-1 p-8 lg:p-12">
         {/* Organization Header */}
         <div className="mb-8">
           <div className="flex items-center space-x-4 mb-4">
@@ -237,43 +236,43 @@ export default function OrgDetailPage() {
             </Link>
           </div>
           
-          <div className="bg-white rounded-lg p-8 border border-zinc-200">
+          <div className="glass-card-solid p-8">
             <div className="flex justify-between items-start mb-6">
               <div>
-                <h1 className="text-3xl font-bold text-zinc-900 mb-2">
+                <h1 className="text-3xl font-bold text-gray-800 mb-2">
                   {orgData.name}
                 </h1>
-                <p className="text-zinc-600 leading-relaxed mb-4">
+                <p className="text-gray-700 leading-relaxed mb-4">
                   {orgData.description}
                 </p>
                 <div className="text-sm text-zinc-500">
                   Owner: {formatAddress(orgData.owner)}
-                  {isOwner && <span className="ml-2 text-green-600">(You)</span>}
+                  {isOwner && <span className="ml-2" style={{ color: '#22262b' }}>(You)</span>}
                 </div>
               </div>
               {isOwner && (
-                <div className="bg-green-100 text-green-700 px-3 py-1 rounded-full text-sm font-medium">
+                <div className="px-3 py-1 rounded-full text-sm font-medium" style={{ background: '#cfc7b5', color: '#22262b' }}>
                   Organization Owner
                 </div>
               )}
             </div>
 
             <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-              <div className="bg-zinc-50 rounded-lg p-4">
+              <div className="flex rounded-lg p-4">
                 <div className="text-sm text-zinc-500 mb-1">Organization ID</div>
-                <div className="font-mono text-sm text-zinc-900">{orgId}</div>
+                <div className="font-mono text-sm text-gray-800">{orgId}</div>
               </div>
-              <div className="bg-zinc-50 rounded-lg p-4">
+              <div className="flex rounded-lg p-4">
                 <div className="text-sm text-zinc-500 mb-1">Your Role</div>
-                <div className="font-medium text-zinc-900">
+                <div className="font-medium text-gray-800">
                   {isOwner ? 'Owner' : 'Member'}
                 </div>
               </div>
-              <div className="bg-zinc-50 rounded-lg p-4">
+              <div className="flex rounded-lg p-4">
                 <div className="text-sm text-zinc-500 mb-1">Quick Action</div>
                 <Link
                   href="/feedback/new"
-                  className="text-zinc-900 font-medium hover:text-zinc-700 transition-colors"
+                  className="text-gray-800 font-medium hover:text-zinc-700 transition-colors"
                 >
                   Send Feedback →
                 </Link>
@@ -287,10 +286,10 @@ export default function OrgDetailPage() {
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
             {/* Add Member */}
             <div className="bg-white rounded-lg p-6 border border-zinc-200">
-              <h2 className="text-xl font-bold text-zinc-900 mb-4">
+              <h2 className="text-xl font-bold text-gray-800 mb-4">
                 Add Member
               </h2>
-              <p className="text-zinc-600 mb-6 text-sm">
+              <p className="text-gray-700 mb-6 text-sm">
                 Add new members to your organization by entering their wallet address.
               </p>
               
@@ -313,7 +312,8 @@ export default function OrgDetailPage() {
                 <button
                   type="submit"
                   disabled={isAddingMember || isConfirming || !newMemberAddress.trim()}
-                  className="w-full bg-green-600 text-white px-4 py-3 rounded-lg font-medium hover:bg-green-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                  className="w-full px-4 py-3 rounded-lg font-medium hover:opacity-90 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                  style={{ background: '#22262b', color: '#ffffff' }}
                 >
                   {isAddingMember || isConfirming ? (
                     <div className="flex items-center justify-center space-x-2">
@@ -329,10 +329,10 @@ export default function OrgDetailPage() {
 
             {/* Remove Member */}
             <div className="bg-white rounded-lg p-6 border border-zinc-200">
-              <h2 className="text-xl font-bold text-zinc-900 mb-4">
+              <h2 className="text-xl font-bold text-gray-800 mb-4">
                 Remove Member
               </h2>
-              <p className="text-zinc-600 mb-6 text-sm">
+              <p className="text-gray-700 mb-6 text-sm">
                 Remove members from your organization. Note: You cannot remove yourself as the owner.
               </p>
               
@@ -355,7 +355,8 @@ export default function OrgDetailPage() {
                 <button
                   type="submit"
                   disabled={isRemovingMember || isConfirming || !removeMemberAddress.trim()}
-                  className="w-full bg-red-600 text-white px-4 py-3 rounded-lg font-medium hover:bg-red-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                  className="w-full px-4 py-3 rounded-lg font-medium hover:opacity-90 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                  style={{ background: '#22262b', color: '#ffffff' }}
                 >
                   {isRemovingMember || isConfirming ? (
                     <div className="flex items-center justify-center space-x-2">
@@ -373,16 +374,16 @@ export default function OrgDetailPage() {
 
         {/* Member View */}
         {!isOwner && (
-          <div className="bg-white rounded-lg p-8 border border-zinc-200 text-center">
-            <h2 className="text-xl font-bold text-zinc-900 mb-4">
+          <div className="glass-card-solid p-8 text-center">
+            <h2 className="text-xl font-bold text-gray-800 mb-4">
               Organization Member
             </h2>
-            <p className="text-zinc-600 mb-6">
+            <p className="text-gray-700 mb-6">
               You are a member of this organization. You can send and receive feedback within this team.
             </p>
             <Link
               href="/feedback/new"
-              className="inline-block bg-zinc-900 text-white px-6 py-3 rounded-lg font-medium hover:bg-zinc-800 transition-colors"
+              className="inline-block bg-zinc-900 text-gray-800 px-6 py-3 rounded-lg font-medium hover:bg-zinc-800 transition-colors"
             >
               Send Feedback
             </Link>

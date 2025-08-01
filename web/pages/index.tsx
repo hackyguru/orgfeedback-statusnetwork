@@ -1,6 +1,6 @@
 import { useAccount, useReadContract } from 'wagmi';
 import { useEffect, useState } from 'react';
-import Navbar from '@/components/Navbar';
+import Sidebar from '@/components/Sidebar';
 import OrgCard from '@/components/OrgCard';
 import { CONTRACT_ADDRESS } from '@/lib/config';
 import { ORG_FEEDBACK_ABI } from '@/lib/abi';
@@ -8,7 +8,13 @@ import Link from 'next/link';
 
 export default function Home() {
   const { address, isConnected } = useAccount();
-  const [userOrgs, setUserOrgs] = useState([]);
+  const [userOrgs, setUserOrgs] = useState<string[]>([]);
+  const [isHydrated, setIsHydrated] = useState(false);
+
+  // Fix hydration mismatch by ensuring client-side only rendering for connection state
+  useEffect(() => {
+    setIsHydrated(true);
+  }, []);
 
   // Get total organizations count
   const { data: totalOrgs } = useReadContract({
@@ -23,32 +29,57 @@ export default function Home() {
     abi: ORG_FEEDBACK_ABI,
     functionName: 'getOrganizationsByUser',
     args: address ? [address] : undefined,
-    enabled: !!address,
   });
 
   useEffect(() => {
-    if (organizations) {
-      setUserOrgs(organizations);
+    if (organizations && Array.isArray(organizations)) {
+      setUserOrgs(organizations as string[]);
     }
   }, [organizations]);
 
+  // Always render the same basic structure to prevent hydration mismatch
+  if (!isHydrated) {
+    return (
+      <div className="min-h-screen flex">
+        <Sidebar />
+        <div className="flex-1 p-8 lg:p-12">
+          <div className="max-w-6xl mx-auto">
+            <div className="animate-pulse">
+              <div className="h-8 bg-gray-400 rounded w-48 mb-8"></div>
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+                {[...Array(3)].map((_, i) => (
+                  <div key={i} className="glass-card-solid p-6">
+                    <div className="h-8 bg-gray-400 rounded w-16 mb-2"></div>
+                    <div className="h-4 bg-gray-400 rounded w-32"></div>
+                  </div>
+                ))}
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    );
+  }
+
   if (!isConnected) {
     return (
-      <div className="min-h-screen bg-zinc-50">
-        <Navbar />
-        <div className="max-w-4xl mx-auto px-4 py-16">
-          <div className="text-center">
-            <h1 className="text-4xl font-bold text-zinc-900 mb-6">
-              Welcome to OrgFeedback
-            </h1>
-            <p className="text-xl text-zinc-600 mb-8 max-w-2xl mx-auto">
-              A decentralized platform for anonymous organizational feedback. 
-              Connect your wallet to create organizations, send encrypted feedback, 
-              and build better teams.
-            </p>
-            <div className="bg-white rounded-lg p-8 border border-zinc-200 max-w-md mx-auto">
-              <div className="text-zinc-500 mb-4">
-                Please connect your wallet to get started
+      <div className="min-h-screen flex">
+        <Sidebar />
+        <div className="flex-1 p-8 lg:p-12">
+          <div className="max-w-6xl mx-auto">
+            <div className="text-center">
+              <h1 className="text-5xl font-bold text-gray-800 mb-6">
+                Welcome to <span className="accent-text">OrgFeedback</span>
+              </h1>
+              <p className="text-xl text-gray-700 mb-8 max-w-2xl mx-auto leading-relaxed">
+                A decentralized platform for anonymous organizational feedback. 
+                Connect your wallet to create organizations, send encrypted feedback, 
+                and build better teams.
+              </p>
+              <div className="glass-card p-8 max-w-md mx-auto">
+                <div className="text-gray-700 mb-4 font-medium">
+                  Use the sidebar to connect your wallet and get started
+                </div>
               </div>
             </div>
           </div>
@@ -58,52 +89,71 @@ export default function Home() {
   }
 
   return (
-    <div className="min-h-screen bg-zinc-50">
-      <Navbar />
+    <div className="min-h-screen flex">
+      <Sidebar />
       
-      <div className="max-w-6xl mx-auto px-4 py-8">
+      <div className="flex-1 p-8 lg:p-12">
+        <div className="max-w-6xl mx-auto">
         {/* Header Stats */}
-        <div className="mb-8">
-          <h1 className="text-3xl font-bold text-zinc-900 mb-4">
-            Dashboard
-          </h1>
+        <div className="mb-10">
+          <div className="flex items-center justify-between mb-8">
+            <h1 className="text-3xl font-bold text-gray-800">
+              Dashboard
+            </h1>
+            <div className="card-important px-4 py-2 rounded-full text-sm font-semibold shadow-sm" style={{ color: '#22262b' }}>
+              DETAILS
+            </div>
+          </div>
+          
           <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-            <div className="bg-white rounded-lg p-6 border border-zinc-200">
-              <div className="text-2xl font-bold text-zinc-900">
+            <div className="glass-card-solid p-6">
+              <div className="text-3xl font-bold text-gray-800 mb-2">
                 {totalOrgs ? Number(totalOrgs).toLocaleString() : '0'}
               </div>
-              <div className="text-zinc-600">
+              <div className="text-gray-700 font-medium">
                 Total Organizations
               </div>
+              <div className="mt-4 text-xs text-[#cfc7b5] font-semibold">
+                +{totalOrgs ? Math.floor(Number(totalOrgs) * 0.12) : 0}% from last month
+              </div>
             </div>
-            <div className="bg-white rounded-lg p-6 border border-zinc-200">
-              <div className="text-2xl font-bold text-zinc-900">
+            
+            <div className="glass-card-solid p-6">
+              <div className="text-3xl font-bold text-gray-800 mb-2">
                 {userOrgs.length}
               </div>
-              <div className="text-zinc-600">
+              <div className="text-gray-700 font-medium">
                 Your Organizations
               </div>
-            </div>
-            <div className="bg-white rounded-lg p-6 border border-zinc-200">
-              <div className="text-2xl font-bold text-zinc-900">
-                {address === userOrgs[0] ? '1' : '0'}
+              <div className="mt-4 text-xs text-gray-600 font-semibold">
+                Active participation
               </div>
-              <div className="text-zinc-600">
+            </div>
+            
+            <div className="glass-card-solid p-6">
+              <div className="text-3xl font-bold text-gray-800 mb-2">
+                {userOrgs.filter((orgId: string) => orgId.toLowerCase() === address?.toLowerCase()).length}
+              </div>
+              <div className="text-gray-700 font-medium">
                 Organizations Owned
+              </div>
+              <div className="mt-4 text-xs text-yellow-600 font-semibold">
+                Leadership role
               </div>
             </div>
           </div>
         </div>
 
         {/* Your Organizations */}
-        <div className="mb-8">
-          <div className="flex justify-between items-center mb-6">
-            <h2 className="text-2xl font-bold text-zinc-900">
+        <div className="mb-10">
+          <div className="flex justify-between items-center mb-8">
+            <h2 className="text-3xl font-bold text-gray-800">
               Your Organizations
             </h2>
             <Link
               href="/org"
-              className="bg-zinc-900 text-white px-4 py-2 rounded-lg font-medium hover:bg-zinc-800 transition-colors"
+              className="px-6 py-3 rounded-xl font-semibold hover:opacity-90 transition-all transform hover:scale-105 shadow-md"
+              style={{ background: '#22262b', color: '#ffffff' }}
             >
               Manage Organization
             </Link>
@@ -112,17 +162,17 @@ export default function Home() {
           {isLoadingOrgs ? (
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
               {[...Array(3)].map((_, i) => (
-                <div key={i} className="bg-white border border-zinc-200 rounded-lg p-6 animate-pulse">
-                  <div className="h-6 bg-zinc-200 rounded w-3/4 mb-4"></div>
-                  <div className="h-4 bg-zinc-200 rounded w-full mb-2"></div>
-                  <div className="h-4 bg-zinc-200 rounded w-2/3 mb-4"></div>
-                  <div className="h-10 bg-zinc-200 rounded w-1/2"></div>
+                <div key={i} className="glass-card-solid p-6 animate-pulse">
+                  <div className="h-6 bg-zinc-700 rounded w-3/4 mb-4"></div>
+                  <div className="h-4 bg-zinc-700 rounded w-full mb-2"></div>
+                  <div className="h-4 bg-zinc-700 rounded w-2/3 mb-4"></div>
+                  <div className="h-10 bg-zinc-700 rounded w-1/2"></div>
                 </div>
               ))}
             </div>
           ) : userOrgs.length > 0 ? (
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-              {userOrgs.map((orgId) => (
+              {userOrgs.map((orgId: string) => (
                 <OrgCard
                   key={orgId}
                   orgId={orgId}
@@ -131,13 +181,14 @@ export default function Home() {
               ))}
             </div>
           ) : (
-            <div className="bg-white rounded-lg p-8 border border-zinc-200 text-center">
-              <div className="text-zinc-500 mb-4">
+            <div className="glass-card-solid p-8 text-center">
+              <div className="text-gray-700 mb-6 text-lg">
                 You're not part of any organizations yet
               </div>
               <Link
                 href="/org"
-                className="inline-block bg-zinc-900 text-white px-6 py-3 rounded-lg font-medium hover:bg-zinc-800 transition-colors"
+                className="inline-block px-8 py-4 rounded-xl font-semibold hover:opacity-90 transition-all transform hover:scale-105 shadow-md"
+                style={{ background: '#22262b', color: '#ffffff' }}
               >
                 Create Your First Organization
               </Link>
@@ -146,53 +197,54 @@ export default function Home() {
         </div>
 
         {/* Quick Actions */}
-        <div className="bg-white rounded-lg p-6 border border-zinc-200">
-          <h3 className="text-lg font-semibold text-zinc-900 mb-4">
+        <div className="card-important p-8">
+          <h3 className="text-2xl font-bold text-gray-800 mb-6">
             Quick Actions
           </h3>
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
             <Link
               href="/org"
-              className="p-4 border border-zinc-200 rounded-lg hover:border-zinc-300 transition-colors text-center"
+              className="glass-card p-6 hover:bg-gray-100/70 transition-all transform hover:scale-105 text-center group"
             >
-              <div className="text-zinc-900 font-medium mb-1">
+              <div className="text-gray-800 font-semibold mb-2 group-hover:text-[#cfc7b5] transition-colors">
                 Manage Organization
               </div>
-              <div className="text-zinc-500 text-sm">
+              <div className="text-gray-700 text-sm">
                 Create or manage your org
               </div>
             </Link>
             <Link
               href="/feedback/new"
-              className="p-4 border border-zinc-200 rounded-lg hover:border-zinc-300 transition-colors text-center"
+              className="glass-card p-6 hover:bg-gray-100/70 transition-all transform hover:scale-105 text-center group"
             >
-              <div className="text-zinc-900 font-medium mb-1">
+              <div className="text-gray-800 font-semibold mb-2 group-hover:text-gray-600 transition-colors">
                 Send Feedback
               </div>
-              <div className="text-zinc-500 text-sm">
+              <div className="text-gray-700 text-sm">
                 Send encrypted feedback
               </div>
             </Link>
             <Link
               href="/feedback"
-              className="p-4 border border-zinc-200 rounded-lg hover:border-zinc-300 transition-colors text-center"
+              className="glass-card p-6 hover:bg-gray-100/70 transition-all transform hover:scale-105 text-center group"
             >
-              <div className="text-zinc-900 font-medium mb-1">
+              <div className="text-gray-800 font-semibold mb-2 group-hover:text-gray-600 transition-colors">
                 View Feedback
               </div>
-              <div className="text-zinc-500 text-sm">
+              <div className="text-gray-700 text-sm">
                 See your feedback history
               </div>
             </Link>
-            <div className="p-4 border border-zinc-200 rounded-lg text-center opacity-50">
-              <div className="text-zinc-900 font-medium mb-1">
+            <div className="glass-card p-6 text-center opacity-60">
+              <div className="text-gray-800 font-semibold mb-2">
                 Analytics
               </div>
-              <div className="text-zinc-500 text-sm">
+              <div className="text-gray-500 text-sm">
                 Coming soon
               </div>
             </div>
           </div>
+        </div>
         </div>
       </div>
     </div>

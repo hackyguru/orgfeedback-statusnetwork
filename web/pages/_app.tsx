@@ -37,20 +37,21 @@ export default function App({ Component, pageProps }: AppProps) {
           toastOptions={{
             duration: 4000,
             style: {
-              background: '#18181b',
-              color: '#f4f4f5',
-              border: '1px solid #3f3f46',
+              background: '#ffffff',
+              color: '#22262b',
+              border: '1px solid rgba(34, 38, 43, 0.1)',
+              boxShadow: '0 4px 6px -1px rgba(34, 38, 43, 0.1), 0 2px 4px -1px rgba(34, 38, 43, 0.06)',
             },
             success: {
               iconTheme: {
                 primary: '#10b981',
-                secondary: '#f4f4f5',
+                secondary: '#ffffff',
               },
             },
             error: {
               iconTheme: {
                 primary: '#ef4444',
-                secondary: '#f4f4f5',
+                secondary: '#ffffff',
               },
             },
           }}

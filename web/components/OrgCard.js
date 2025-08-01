@@ -32,19 +32,19 @@ const OrgCard = ({ orgId, isOwner = false }) => {
 
   if (isLoading) {
     return (
-      <div className="bg-white border border-zinc-200 rounded-lg p-6 animate-pulse">
-        <div className="h-6 bg-zinc-200 rounded w-3/4 mb-4"></div>
-        <div className="h-4 bg-zinc-200 rounded w-full mb-2"></div>
-        <div className="h-4 bg-zinc-200 rounded w-2/3 mb-4"></div>
-        <div className="h-10 bg-zinc-200 rounded w-1/2"></div>
+      <div className="glass-card-solid p-6 animate-pulse">
+        <div className="h-6 bg-gray-400 rounded w-3/4 mb-4"></div>
+        <div className="h-4 bg-gray-400 rounded w-full mb-2"></div>
+        <div className="h-4 bg-gray-400 rounded w-2/3 mb-4"></div>
+        <div className="h-10 bg-gray-400 rounded w-1/2"></div>
       </div>
     );
   }
 
   if (!orgData) {
     return (
-      <div className="bg-white border border-zinc-200 rounded-lg p-6">
-        <div className="text-zinc-500 text-center">
+      <div className="glass-card-solid p-6">
+        <div className="text-gray-700 text-center">
           Unable to load organization data
         </div>
       </div>
@@ -52,35 +52,36 @@ const OrgCard = ({ orgId, isOwner = false }) => {
   }
 
   return (
-    <div className="bg-white border border-zinc-200 rounded-lg p-6 hover:border-zinc-300 transition-colors">
+    <div className="glass-card-solid p-6 hover:shadow-lg transition-all transform hover:scale-105 group">
       <div className="mb-4">
-        <h3 className="text-lg font-semibold text-zinc-900 mb-2">
+        <h3 className="text-lg font-semibold text-gray-800 mb-2 group-hover:text-lime-600 transition-colors">
           {orgData.name}
         </h3>
-        <p className="text-zinc-600 text-sm leading-relaxed">
+        <p className="text-gray-700 text-sm leading-relaxed">
           {orgData.description}
         </p>
       </div>
 
       <div className="mb-4">
-        <div className="text-xs text-zinc-500 mb-1">Owner</div>
-        <div className="text-sm font-mono text-zinc-700">
+        <div className="text-xs text-gray-500 mb-1 font-medium">Owner</div>
+        <div className="text-sm font-mono text-gray-700 px-2 py-1 rounded" style={{ background: '#f4f1eb', border: '1px solid rgba(34, 38, 43, 0.15)' }}>
           {formatAddress(orgData.owner)}
         </div>
         {isOwner && (
-          <div className="inline-block mt-1 px-2 py-1 bg-zinc-100 text-zinc-700 text-xs rounded-full">
+          <div className="inline-block mt-2 px-3 py-1 text-xs rounded-full font-semibold shadow-sm" style={{ background: '#cfc7b5', color: '#22262b' }}>
             You own this organization
           </div>
         )}
       </div>
 
       <div className="flex justify-between items-center">
-        <div className="text-xs text-zinc-500">
-          Org ID: {formatAddress(orgId)}
+        <div className="text-xs text-gray-500 font-mono">
+          ID: {formatAddress(orgId)}
         </div>
         <Link
           href={`/org/${orgId}`}
-          className="bg-zinc-900 text-white px-4 py-2 rounded-lg text-sm font-medium hover:bg-zinc-800 transition-colors"
+          className="text-gray-700 px-4 py-2 rounded-lg text-sm font-medium hover:shadow-md transition-all transform hover:scale-105"
+          style={{ background: '#f4f1eb', border: '1px solid rgba(34, 38, 43, 0.15)' }}
         >
           View Details
         </Link>

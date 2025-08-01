@@ -15,6 +15,7 @@
     "@wagmi/connectors": "^5.9.1",
     "@wagmi/core": "^2.18.1",
     "autoprefixer": "^10.4.21",
+    "ethereum-blockies": "^0.1.1",
     "ethers": "^6.15.0",
     "next": "15.4.5",
     "react": "19.1.0",
