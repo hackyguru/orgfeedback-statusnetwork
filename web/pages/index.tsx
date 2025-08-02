@@ -17,7 +17,9 @@ import {
   Sparkles,
   ArrowRight,
   ChevronLeft,
-  ChevronRight
+  ChevronRight,
+  MessageCircleReply,
+  MessageCirclePlus
 } from 'lucide-react';
 
 export default function Home() {
@@ -169,9 +171,10 @@ export default function Home() {
               </p>
             </div>
             <div className="flex items-center space-x-4">
-              <div className="card-important px-6 py-3 rounded-xl text-sm font-semibold shadow-md hover:shadow-lg transition-shadow" style={{ color: '#22262b' }}>
-                <Sparkles className="w-4 h-4 inline mr-2" />
-                DASHBOARD
+              <div className="card-important flex items-center px-6 py-3 rounded-xl text-sm font-semibold shadow-md hover:shadow-lg transition-shadow" style={{ color: '#22262b' }}>
+                <MessageCircleReply className="w-4 h-4 inline mr-2" />
+                Feedback Requests
+                <div className="text-xs bg-[#83785f] text-[#f8f6f0] rounded-full px-2 py-1 ml-2">0</div>
               </div>
               <img 
                 src="/poweredby.png" 
@@ -365,14 +368,14 @@ export default function Home() {
               href="/org"
               className="group glass-card p-8 hover:shadow-xl transition-all transform hover:scale-110 text-center hover:bg-gradient-to-br hover:from-blue-50 hover:to-blue-100"
             >
-              <div className="w-16 h-16 mx-auto mb-6 p-4 rounded-2xl bg-gradient-to-br from-blue-500 to-blue-600 group-hover:from-blue-600 group-hover:to-blue-700 transition-all shadow-lg">
-                <Settings className="w-8 h-8 text-white" />
+              <div className="w-16 h-16 mx-auto mb-6 p-4 rounded-2xl bg-[#83785f]  transition-all shadow-lg">
+              <MessageCircleReply className="w-8 h-8 text-white" />
               </div>
-              <div className="text-gray-800 font-bold text-lg mb-3 group-hover:text-blue-700 transition-colors">
-                Manage Organization
+              <div className="text-[#83785f] font-bold text-lg mb-3 transition-colors">
+                Request Feedback
               </div>
               <div className="text-gray-600 text-sm leading-relaxed">
-                Create or manage your organization settings
+                Ask someone for feedback
               </div>
             </Link>
             
@@ -380,14 +383,14 @@ export default function Home() {
               href="/feedback/new"
               className="group glass-card p-8 hover:shadow-xl transition-all transform hover:scale-110 text-center hover:bg-gradient-to-br hover:from-green-50 hover:to-green-100"
             >
-              <div className="w-16 h-16 mx-auto mb-6 p-4 rounded-2xl bg-gradient-to-br from-green-500 to-green-600 group-hover:from-green-600 group-hover:to-green-700 transition-all shadow-lg">
-                <MessageSquare className="w-8 h-8 text-white" />
+              <div className="w-16 h-16 mx-auto mb-6 p-4 rounded-2xl bg-[#83785f]  transition-all shadow-lg">
+              <MessageCirclePlus className="w-8 h-8 text-white" />
               </div>
-              <div className="text-gray-800 font-bold text-lg mb-3 group-hover:text-green-700 transition-colors">
+              <div className="text-[#83785f] font-bold text-lg mb-3 transition-colors">
                 Send Feedback
               </div>
               <div className="text-gray-600 text-sm leading-relaxed">
-                Send encrypted anonymous feedback
+                Send someone a feedback
               </div>
             </Link>
             
@@ -395,10 +398,10 @@ export default function Home() {
               href="/feedback"
               className="group glass-card p-8 hover:shadow-xl transition-all transform hover:scale-110 text-center hover:bg-gradient-to-br hover:from-purple-50 hover:to-purple-100"
             >
-              <div className="w-16 h-16 mx-auto mb-6 p-4 rounded-2xl bg-gradient-to-br from-purple-500 to-purple-600 group-hover:from-purple-600 group-hover:to-purple-700 transition-all shadow-lg">
+              <div className="w-16 h-16 mx-auto mb-6 p-4 rounded-2xl bg-[#83785f]  transition-all shadow-lg">
                 <BarChart3 className="w-8 h-8 text-white" />
               </div>
-              <div className="text-gray-800 font-bold text-lg mb-3 group-hover:text-purple-700 transition-colors">
+              <div className="text-[#83785f] font-bold text-lg mb-3 transition-colors">
                 View Feedback
               </div>
               <div className="text-gray-600 text-sm leading-relaxed">
@@ -407,10 +410,10 @@ export default function Home() {
             </Link>
             
             <div className="glass-card p-8 text-center opacity-60 hover:opacity-80 transition-opacity">
-              <div className="w-16 h-16 mx-auto mb-6 p-4 rounded-2xl bg-gradient-to-br from-gray-400 to-gray-500 shadow-lg">
-                <Sparkles className="w-8 h-8 text-white" />
+            <div className="w-16 h-16 mx-auto mb-6 p-4 rounded-2xl bg-[#83785f]  transition-all shadow-lg">
+            <Sparkles className="w-8 h-8 text-white" />
               </div>
-              <div className="text-gray-800 font-bold text-lg mb-3">
+              <div className="text-[#83785f] font-bold text-lg mb-3 transition-colors">
                 Analytics
               </div>
               <div className="text-gray-500 text-sm leading-relaxed">
