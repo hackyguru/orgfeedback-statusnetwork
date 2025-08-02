@@ -108,59 +108,68 @@ const Sidebar = () => {
             </Link>
           </div>
 
-                          {/* Main Navigation - Centered in middle */}
-                <div className="flex-1 flex items-center justify-center">
-                  <nav className="flex flex-col items-center space-y-6 px-2 py-3 rounded-full" style={{ background: 'rgba(255, 255, 255, 0.8)' }}>
-                    {mainNavigationItems.map((item) => {
-                      const isActive = isActivePath(item.path);
-                      return (
-                        <Link
-                          key={item.path}
-                          href={item.path}
-                          onClick={() => setIsMobileMenuOpen(false)}
-                          className={`
-                            w-12 h-12 flex items-center justify-center transition-all duration-150 ease-in-out
-                            ${isActive 
-                              ? 'text-gray-800' 
-                              : 'text-gray-500 hover:text-gray-700'
-                            }
-                          `}
-                          style={isActive ? { background: '#cfc7b5', borderRadius: '50%' } : {}}
-                          title={item.label}
-                        >
-                          {item.icon}
-                        </Link>
-                      );
-                    })}
-                  </nav>
-                </div>
+          {/* Main Navigation - Centered in middle */}
+          {isHydrated && isConnected && (
+            <div className="flex-1 flex items-center justify-center">
+              <nav className="flex flex-col items-center space-y-6 px-2 py-3 rounded-full" style={{ background: 'rgba(255, 255, 255, 0.8)' }}>
+                {mainNavigationItems.map((item) => {
+                  const isActive = isActivePath(item.path);
+                  return (
+                    <Link
+                      key={item.path}
+                      href={item.path}
+                      onClick={() => setIsMobileMenuOpen(false)}
+                      className={`
+                        w-12 h-12 flex items-center justify-center transition-all duration-150 ease-in-out
+                        ${isActive 
+                          ? 'text-gray-800' 
+                          : 'text-gray-500 hover:text-gray-700'
+                        }
+                      `}
+                      style={isActive ? { background: '#cfc7b5', borderRadius: '50%' } : {}}
+                      title={item.label}
+                    >
+                      {item.icon}
+                    </Link>
+                  );
+                })}
+              </nav>
+            </div>
+          )}
 
-                {/* Organization Navigation - Separate section */}
-                <div className="flex justify-center mb-8">
-                  <nav className="flex flex-col items-center space-y-6 px-2 py-3 rounded-full" style={{ background: 'rgba(255, 255, 255, 0.8)' }}>
-                    {organizationNavigationItems.map((item) => {
-                      const isActive = isActivePath(item.path);
-                      return (
-                        <Link
-                          key={item.path}
-                          href={item.path}
-                          onClick={() => setIsMobileMenuOpen(false)}
-                          className={`
-                            w-12 h-12 flex items-center justify-center transition-all duration-150 ease-in-out
-                            ${isActive 
-                              ? 'text-gray-800' 
-                              : 'text-gray-500 hover:text-gray-700'
-                            }
-                          `}
-                          style={isActive ? { background: '#cfc7b5', borderRadius: '50%' } : {}}
-                          title={item.label}
-                        >
-                          {item.icon}
-                        </Link>
-                      );
-                    })}
-                  </nav>
-                </div>
+          {/* Organization Navigation - Separate section */}
+          {isHydrated && isConnected && (
+            <div className="flex justify-center mb-8">
+              <nav className="flex flex-col items-center space-y-6 px-2 py-3 rounded-full" style={{ background: 'rgba(255, 255, 255, 0.8)' }}>
+                {organizationNavigationItems.map((item) => {
+                  const isActive = isActivePath(item.path);
+                  return (
+                    <Link
+                      key={item.path}
+                      href={item.path}
+                      onClick={() => setIsMobileMenuOpen(false)}
+                      className={`
+                        w-12 h-12 flex items-center justify-center transition-all duration-150 ease-in-out
+                        ${isActive 
+                          ? 'text-gray-800' 
+                          : 'text-gray-500 hover:text-gray-700'
+                        }
+                      `}
+                      style={isActive ? { background: '#cfc7b5', borderRadius: '50%' } : {}}
+                      title={item.label}
+                    >
+                      {item.icon}
+                    </Link>
+                  );
+                })}
+              </nav>
+            </div>
+          )}
+
+          {/* Spacer when not connected to push wallet to bottom */}
+          {(!isHydrated || !isConnected) && (
+            <div className="flex-1"></div>
+          )}
 
           {/* User Profile / Wallet */}
           <div className="flex justify-center">

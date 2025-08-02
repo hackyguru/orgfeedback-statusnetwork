@@ -37,6 +37,8 @@ import {
   MessageCirclePlus,
   X
 } from 'lucide-react';
+import Image from 'next/image';
+
 
 export default function Home() {
   const { address, isConnected } = useAccount();
@@ -163,57 +165,32 @@ export default function Home() {
           <div className="w-full">
             <div className="text-center max-w-4xl mx-auto py-16">
               {/* Hero Section */}
-              <div className="mb-12">
-                <div className="w-24 h-24 mx-auto mb-8 p-6 rounded-full bg-gradient-to-br from-lime-400 to-green-500 shadow-xl">
-                  <MessageSquare className="w-12 h-12 text-white mx-auto" />
+              <div className="">
+                <div className="w-24 h-24 mx-auto mb-8 p-6 rounded-full bg-[#83785f] shadow-xl">
+                  <MessageSquare className="w-12 h-12 text-[#f8f6f0] mx-auto" />
                 </div>
-                <h1 className="text-6xl font-bold text-gray-800 mb-6 leading-tight">
-                  Welcome to <span className="accent-text">OrgFeedback</span>
+                <h1 className="text-5xl font-bold text-gray-800 mb-6 leading-tight">
+                  <span className="text-[#83785f]">Optimize performance through continuous on-chain feedback</span>
                 </h1>
-                <p className="text-2xl text-gray-600 mb-12 max-w-3xl mx-auto leading-relaxed">
-                  A decentralized platform for anonymous organizational feedback. 
-                  Build better teams through secure, encrypted communication.
+                <p className="text-lg text-gray-600 max-w-2xl mx-auto leading-relaxed">
+                  Build better teams through secure & encrypted communication
                 </p>
               </div>
 
-              {/* Features Grid */}
-              <div className="grid grid-cols-1 md:grid-cols-3 gap-8 mb-12">
-                <div className="glass-card p-8 text-center hover:shadow-lg transition-all">
-                  <div className="w-16 h-16 mx-auto mb-6 p-4 rounded-2xl bg-gradient-to-br from-blue-500 to-blue-600 shadow-lg">
-                    <Building2 className="w-8 h-8 text-white" />
-                  </div>
-                  <h3 className="text-xl font-bold text-gray-800 mb-3">Create Organizations</h3>
-                  <p className="text-gray-600">Set up and manage your teams with ease</p>
-                </div>
-                
-                <div className="glass-card p-8 text-center hover:shadow-lg transition-all">
-                  <div className="w-16 h-16 mx-auto mb-6 p-4 rounded-2xl bg-gradient-to-br from-green-500 to-green-600 shadow-lg">
-                    <MessageSquare className="w-8 h-8 text-white" />
-                  </div>
-                  <h3 className="text-xl font-bold text-gray-800 mb-3">Anonymous Feedback</h3>
-                  <p className="text-gray-600">Send and receive encrypted feedback safely</p>
-                </div>
-                
-                <div className="glass-card p-8 text-center hover:shadow-lg transition-all">
-                  <div className="w-16 h-16 mx-auto mb-6 p-4 rounded-2xl bg-gradient-to-br from-purple-500 to-purple-600 shadow-lg">
-                    <BarChart3 className="w-8 h-8 text-white" />
-                  </div>
-                  <h3 className="text-xl font-bold text-gray-800 mb-3">Track Progress</h3>
-                  <p className="text-gray-600">Monitor feedback trends and team health</p>
-                </div>
+              <div className="flex items-center justify-center mb-12">
+              <Image src="/poweredby.png" alt="Powered by Status Network" width={250} height={250} className="" />
               </div>
 
               {/* CTA Section */}
-              <div className="card-important p-10 rounded-2xl">
+              <div className="bg-[#cfc7b5] p-5 rounded-2xl">
                 <div className="mb-6">
-                  <Sparkles className="w-8 h-8 text-gray-700 mx-auto mb-4" />
+                  <Image src="/mockup.png" alt="Mockup" width={1200} height={1000} className="w-full h-auto mb-8 rounded-xl" />
                   <h3 className="text-2xl font-bold text-gray-800 mb-3">Ready to get started?</h3>
                   <p className="text-gray-700 text-lg">
-                    Connect your wallet using the sidebar to create organizations and start collecting feedback
+                    Connect your wallet to start collecting / submitting feedback
                   </p>
                 </div>
-                <div className="flex items-center justify-center space-x-4 text-gray-600">
-                  <ArrowRight className="w-5 h-5" />
+                <div className="flex items-center justify-center space-x-4 text-[#83785f]">
                   <span className="font-medium">Use the sidebar to connect your wallet</span>
                   <ArrowRight className="w-5 h-5" />
                 </div>
