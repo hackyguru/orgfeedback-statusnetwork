@@ -6,12 +6,20 @@ import { CONTRACT_ADDRESS } from '@/lib/config';
 import { ORG_FEEDBACK_ABI } from '@/lib/abi';
 import Link from 'next/link';
 import { toast } from 'react-hot-toast';
+import blockies from 'ethereum-blockies';
 import {
   Sheet,
   SheetContent,
   SheetHeader,
   SheetTitle,
 } from "@/components/ui/sheet";
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
+} from "@/components/ui/dialog";
 import { 
   Building2, 
   Users, 
@@ -36,6 +44,9 @@ export default function Home() {
   const [isHydrated, setIsHydrated] = useState(false);
   const [currentOrgIndex, setCurrentOrgIndex] = useState(0);
   const [isFeedbackRequestsOpen, setIsFeedbackRequestsOpen] = useState(false);
+  const [isRequestFeedbackOpen, setIsRequestFeedbackOpen] = useState(false);
+  const [requestAddresses, setRequestAddresses] = useState('');
+  const [requestContent, setRequestContent] = useState('');
 
   const formatAddress = (address: string) => {
     if (!address) return '';
@@ -67,6 +78,31 @@ export default function Home() {
   const handleAcceptRequest = (requestId: number) => {
     // Handle accept logic here
     toast.success('Feedback request accepted!');
+  };
+
+  const handleRequestFeedback = () => {
+    if (!requestAddresses.trim() || !requestContent.trim()) {
+      toast.error('Please fill in all fields');
+      return;
+    }
+    
+    // Parse addresses
+    const addresses = requestAddresses.split(',').map(addr => addr.trim()).filter(addr => addr);
+    
+    if (addresses.length === 0) {
+      toast.error('Please enter at least one valid address');
+      return;
+    }
+    
+    // Handle request logic here
+    toast.success('Feedback request sent successfully!');
+    setIsRequestFeedbackOpen(false);
+    setRequestAddresses('');
+    setRequestContent('');
+  };
+
+  const parseAddresses = (input: string) => {
+    return input.split(',').map(addr => addr.trim()).filter(addr => addr);
   };
 
   // Fix hydration mismatch by ensuring client-side only rendering for connection state
@@ -404,9 +440,9 @@ export default function Home() {
           </div>
           
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
-            <Link
-              href="/org"
-              className="group glass-card p-8 hover:shadow-xl transition-all transform hover:scale-110 text-center hover:bg-gradient-to-br hover:from-blue-50 hover:to-blue-100"
+            <button
+              onClick={() => setIsRequestFeedbackOpen(true)}
+              className="group glass-card p-8 hover:shadow-xl transition-all transform hover:scale-110 text-center hover:bg-gradient-to-br hover:from-blue-50 hover:to-blue-100 w-full"
             >
               <div className="w-16 h-16 mx-auto mb-6 p-4 rounded-2xl bg-[#83785f]  transition-all shadow-lg">
               <MessageCircleReply className="w-8 h-8 text-white" />
@@ -417,7 +453,7 @@ export default function Home() {
               <div className="text-gray-600 text-sm leading-relaxed">
                 Ask someone for feedback
               </div>
-            </Link>
+            </button>
             
             <Link
               href="/feedback/new"
@@ -511,6 +547,82 @@ export default function Home() {
           </div>
         </SheetContent>
       </Sheet>
+
+      {/* Request Feedback Modal */}
+      <Dialog open={isRequestFeedbackOpen} onOpenChange={setIsRequestFeedbackOpen}>
+        <DialogContent className="sm:max-w-[600px]">
+          <DialogHeader>
+            <DialogTitle className="text-xl font-bold text-gray-800">Request Feedback</DialogTitle>
+          </DialogHeader>
+          
+          <div className="space-y-6 py-4">
+            {/* Ethereum Addresses Input */}
+            <div className="space-y-3">
+              <label className="text-sm font-medium text-gray-700">
+                Ethereum Addresses (comma-separated)
+              </label>
+              <textarea
+                value={requestAddresses}
+                onChange={(e) => setRequestAddresses(e.target.value)}
+                placeholder="0x742d35Cc6634C0532925a3b8D4C9db96C4b4d8b6, 0x8ba1f109551bD432803012645Hac136c772c3c7"
+                className="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#83785f] focus:border-transparent resize-none"
+                rows={3}
+              />
+              
+              {/* Address Preview */}
+              {requestAddresses.trim() && (
+                <div className="space-y-2">
+                  <label className="text-sm font-medium text-gray-700">Requesting for feedback from</label>
+                  <div className="flex flex-wrap gap-2">
+                    {parseAddresses(requestAddresses).map((address, index) => (
+                      <div key={index} className="flex items-center space-x-2 bg-gray-50 rounded-lg px-3 py-2">
+                        <img
+                          src={blockies.create({ seed: address, size: 8 }).toDataURL()}
+                          alt={`Blockie for ${address}`}
+                          className="w-6 h-6 rounded"
+                        />
+                        <span className="text-sm font-mono text-gray-600">
+                          {formatAddress(address)}
+                        </span>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              )}
+            </div>
+
+            {/* Request Content */}
+            <div className="space-y-3">
+              <label className="text-sm font-medium text-gray-700">
+                Request Content
+              </label>
+              <textarea
+                value={requestContent}
+                onChange={(e) => setRequestContent(e.target.value)}
+                placeholder="Hey, can you give me some feedback on my recent work?"
+                className="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#83785f] focus:border-transparent resize-none"
+                rows={4}
+              />
+            </div>
+          </div>
+
+          {/* Action Buttons */}
+          <div className="flex justify-end space-x-3 pt-4 border-t border-gray-200">
+            <button
+              onClick={() => setIsRequestFeedbackOpen(false)}
+              className="px-4 py-2 text-gray-600 border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors"
+            >
+              Cancel
+            </button>
+            <button
+              onClick={handleRequestFeedback}
+              className="px-6 py-2 bg-[#83785f] text-white rounded-lg font-medium hover:bg-[#877f6c] transition-colors"
+            >
+              Send Request
+            </button>
+          </div>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }
