@@ -5,6 +5,13 @@ import OrgCard from '@/components/OrgCard';
 import { CONTRACT_ADDRESS } from '@/lib/config';
 import { ORG_FEEDBACK_ABI } from '@/lib/abi';
 import Link from 'next/link';
+import { toast } from 'react-hot-toast';
+import {
+  Sheet,
+  SheetContent,
+  SheetHeader,
+  SheetTitle,
+} from "@/components/ui/sheet";
 import { 
   Building2, 
   Users, 
@@ -19,7 +26,8 @@ import {
   ChevronLeft,
   ChevronRight,
   MessageCircleReply,
-  MessageCirclePlus
+  MessageCirclePlus,
+  X
 } from 'lucide-react';
 
 export default function Home() {
@@ -27,10 +35,38 @@ export default function Home() {
   const [userOrgs, setUserOrgs] = useState<string[]>([]);
   const [isHydrated, setIsHydrated] = useState(false);
   const [currentOrgIndex, setCurrentOrgIndex] = useState(0);
+  const [isFeedbackRequestsOpen, setIsFeedbackRequestsOpen] = useState(false);
 
   const formatAddress = (address: string) => {
     if (!address) return '';
     return `${address.slice(0, 6)}...${address.slice(-4)}`;
+  };
+
+  // Mock feedback requests data
+  const feedbackRequests = [
+    {
+      id: 1,
+      address: '0x742d35Cc6634C0532925a3b8D4C9db96C4b4d8b6',
+      content: 'Hey can you give me some feedback on my recent project?',
+      timestamp: '2 hours ago'
+    },
+    {
+      id: 2,
+      address: '0x8ba1f109551bD432803012645Hac136c772c3c7',
+      content: 'I would really appreciate your thoughts on my presentation skills',
+      timestamp: '1 day ago'
+    },
+    {
+      id: 3,
+      address: '0x1234567890123456789012345678901234567890',
+      content: 'Can you review my code and provide some suggestions?',
+      timestamp: '3 days ago'
+    }
+  ];
+
+  const handleAcceptRequest = (requestId: number) => {
+    // Handle accept logic here
+    toast.success('Feedback request accepted!');
   };
 
   // Fix hydration mismatch by ensuring client-side only rendering for connection state
@@ -170,12 +206,16 @@ export default function Home() {
                 Manage your organizations and track feedback seamlessly
               </p>
             </div>
-            <div className="flex items-center space-x-4">
-              <div className="card-important flex items-center px-6 py-3 rounded-xl text-sm font-semibold shadow-md hover:shadow-lg transition-shadow" style={{ color: '#22262b' }}>
-                <MessageCircleReply className="w-4 h-4 inline mr-2" />
-                Feedback Requests
-                <div className="text-xs bg-[#83785f] text-[#f8f6f0] rounded-full px-2 py-1 ml-2">0</div>
-              </div>
+                          <div className="flex items-center space-x-4">
+                <div 
+                  className="card-important flex items-center px-6 py-3 rounded-xl text-sm font-semibold shadow-md hover:shadow-lg transition-shadow cursor-pointer" 
+                  style={{ color: '#22262b' }}
+                  onClick={() => setIsFeedbackRequestsOpen(true)}
+                >
+                  <MessageCircleReply className="w-4 h-4 inline mr-2" />
+                  Feedback Requests
+                  <div className="text-xs bg-[#83785f] text-[#f8f6f0] rounded-full px-2 py-1 ml-2">{feedbackRequests.length}</div>
+                </div>
               <img 
                 src="/poweredby.png" 
                 alt="Powered by" 
@@ -424,6 +464,53 @@ export default function Home() {
         </div>
         </div>
       </div>
+
+      {/* Feedback Requests Sheet */}
+      <Sheet open={isFeedbackRequestsOpen} onOpenChange={setIsFeedbackRequestsOpen}>
+        <SheetContent side="right" className="w-96 p-0">
+          <SheetHeader className="px-6 py-6 border-b border-gray-200">
+            <SheetTitle className="text-xl font-bold text-gray-800">Feedback Requests</SheetTitle>
+          </SheetHeader>
+          
+          <div className="px-6 py-6 overflow-y-auto h-full">
+            {feedbackRequests.length === 0 ? (
+              <div className="text-center py-12">
+                <MessageCircleReply className="w-12 h-12 text-gray-400 mx-auto mb-4" />
+                <p className="text-gray-500">No feedback requests yet</p>
+              </div>
+            ) : (
+              <div className="space-y-4">
+                {feedbackRequests.map((request) => (
+                  <div key={request.id} className="bg-white rounded-lg p-5 border border-gray-200 shadow-sm hover:shadow-md transition-shadow">
+                    {/* Address */}
+                    <div className="flex items-center justify-between mb-4">
+                      <div className="text-sm font-mono text-gray-600 bg-gray-50 px-3 py-1 rounded-md">
+                        {formatAddress(request.address)}
+                      </div>
+                      <div className="text-xs text-gray-500 bg-gray-100 px-2 py-1 rounded-full">
+                        {request.timestamp}
+                      </div>
+                    </div>
+                    
+                    {/* Content */}
+                    <div className="text-gray-800 mb-5 leading-relaxed">
+                      {request.content}
+                    </div>
+                    
+                    {/* Accept Button */}
+                    <button
+                      onClick={() => handleAcceptRequest(request.id)}
+                      className="w-full bg-[#83785f] text-white py-3 px-4 rounded-lg font-medium hover:bg-[#877f6c] transition-colors shadow-sm hover:shadow-md"
+                    >
+                      Accept Request
+                    </button>
+                  </div>
+                ))}
+              </div>
+            )}
+          </div>
+        </SheetContent>
+      </Sheet>
     </div>
   );
 }
