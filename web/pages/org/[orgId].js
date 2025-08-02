@@ -143,7 +143,7 @@ export default function OrgDetailPage() {
       <div className="min-h-screen flex">
         <Sidebar />
         <div className="flex-1 p-8 lg:p-12">
-          <div className="max-w-6xl mx-auto">
+          <div className="w-full">
             <div className="glass-card-solid p-8 text-center">
               <h1 className="text-3xl font-bold text-gray-800 mb-4">
                 Organization Details

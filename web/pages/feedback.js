@@ -5,6 +5,7 @@ import Sidebar from '@/components/Sidebar';
 import { CONTRACT_ADDRESS } from '@/lib/config';
 import { ORG_FEEDBACK_ABI } from '@/lib/abi';
 import Link from 'next/link';
+import { RefreshCcw } from 'lucide-react';
 
 // Dynamically import FeedbackCard to prevent SSR issues
 const FeedbackCard = dynamic(() => import('@/components/FeedbackCard'), {
@@ -45,6 +46,9 @@ function FeedbackPageContent() {
       console.log('⚠️ No address or MetaMask not available');
       return;
     }
+    
+    // Record start time for minimum 2-second loading
+    const startTime = Date.now();
     
     try {
       setIsLoadingFeedbacks(true);
@@ -90,7 +94,17 @@ function FeedbackPageContent() {
         setFeedbackError(error);
       }
     } finally {
-      setIsLoadingFeedbacks(false);
+      // Ensure minimum 2-second loading time
+      const elapsedTime = Date.now() - startTime;
+      const remainingTime = Math.max(0, 2000 - elapsedTime);
+      
+      if (remainingTime > 0) {
+        setTimeout(() => {
+          setIsLoadingFeedbacks(false);
+        }, remainingTime);
+      } else {
+        setIsLoadingFeedbacks(false);
+      }
     }
   };
 
@@ -212,7 +226,7 @@ function FeedbackPageContent() {
       <div className="min-h-screen flex">
         <Sidebar />
         <div className="flex-1 p-8 lg:p-12">
-          <div className="max-w-6xl mx-auto">
+          <div className="w-full">
             <div className="glass-card-solid p-8 text-center">
               <h1 className="text-2xl font-bold text-gray-800 mb-4">
                 Feedback Center
@@ -231,67 +245,38 @@ function FeedbackPageContent() {
     <div className="min-h-screen flex">
       <Sidebar />
       
-      <div className="flex-1 p-8 lg:p-12">
-        <div className="max-w-6xl mx-auto">
+      <div className="flex-1 p-4 sm:p-8 lg:p-12 overflow-x-hidden">
+        <div className="w-full max-w-full">
         {/* Header */}
         <div className="mb-8">
-          <div className="flex justify-between items-center mb-6">
-            <h1 className="text-3xl font-bold text-gray-800">
-              Feedback Center
-            </h1>
+          <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-6 gap-4">
+            <div>
+              <h1 className="text-4xl font-bold text-gray-800 mb-2">
+                Feedback Center
+              </h1>
+              <p className="text-gray-600 text-lg">
+                Send secure feedback to members of your organization
+              </p>
+            </div>
             <Link
               href="/feedback/new"
-              className="px-6 py-3 rounded-lg font-semibold hover:opacity-90 transition-all transform hover:scale-105"
+              className="px-6 py-3 rounded-lg font-semibold hover:opacity-90 transition-all transform hover:scale-105 whitespace-nowrap"
               style={{ background: '#22262b', color: '#ffffff' }}
             >
               Send Feedback
             </Link>
           </div>
 
-          {/* Stats */}
-          <div className="grid grid-cols-1 md:grid-cols-4 gap-6 mb-8">
-            <div className="bg-white rounded-lg p-6 border border-zinc-200">
-              <div className="text-2xl font-bold text-gray-800">
-                {feedbackCount ? feedbackCount.toString() : '0'}
-              </div>
-              <div className="text-zinc-600">
-                Total Platform Feedback
-              </div>
-            </div>
-            <div className="bg-white rounded-lg p-6 border border-zinc-200">
-              <div className="text-2xl font-bold text-gray-800">
-                {counts.all}
-              </div>
-              <div className="text-zinc-600">
-                Your Accessible Feedback
-              </div>
-            </div>
-            <div className="bg-white rounded-lg p-6 border border-zinc-200">
-              <div className="text-2xl font-bold text-gray-800">
-                {counts.sent}
-              </div>
-              <div className="text-zinc-600">
-                Sent by You
-              </div>
-            </div>
-            <div className="bg-white rounded-lg p-6 border border-zinc-200">
-              <div className="text-2xl font-bold text-gray-800">
-                {counts.received}
-              </div>
-              <div className="text-zinc-600">
-                Received by You
-              </div>
-            </div>
-          </div>
+
 
           {/* Filters */}
-          <div className="bg-white rounded-lg p-6 border border-zinc-200">
+          <div className="bg-[#cfc7b5] rounded-lg p-4 sm:p-6 border border-zinc-200 flex justify-between">
             <div className="flex flex-wrap gap-2">
               <button
                 onClick={() => setFilterType('all')}
                 className={`px-4 py-2 rounded-lg font-medium transition-colors ${
                   filterType === 'all'
-                    ? 'bg-zinc-900 text-gray-800'
+                    ? 'bg-zinc-900 text-[#fcfbf9]'
                     : 'bg-zinc-100 text-zinc-700 hover:bg-zinc-200'
                 }`}
               >
@@ -301,8 +286,8 @@ function FeedbackPageContent() {
                 onClick={() => setFilterType('sent')}
                 className={`px-4 py-2 rounded-lg font-medium transition-colors ${
                   filterType === 'sent'
-                    ? 'bg-zinc-900 text-gray-800'
-                    : 'bg-zinc-100 text-zinc-700 hover:bg-zinc-200'
+                  ? 'bg-zinc-900 text-[#fcfbf9]'
+                  : 'bg-zinc-100 text-zinc-700 hover:bg-zinc-200'
                 }`}
               >
                 Sent ({counts.sent})
@@ -311,8 +296,8 @@ function FeedbackPageContent() {
                 onClick={() => setFilterType('received')}
                 className={`px-4 py-2 rounded-lg font-medium transition-colors ${
                   filterType === 'received'
-                    ? 'bg-zinc-900 text-gray-800'
-                    : 'bg-zinc-100 text-zinc-700 hover:bg-zinc-200'
+                  ? 'bg-zinc-900 text-[#fcfbf9]'
+                  : 'bg-zinc-100 text-zinc-700 hover:bg-zinc-200'
                 }`}
               >
                 Received ({counts.received})
@@ -330,18 +315,14 @@ function FeedbackPageContent() {
                 </button>
               )}
             </div>
-          </div>
-        </div>
-
-        {/* Refresh Button */}
-        <div className="mb-6 flex gap-3">
+                    {/* Refresh Button */}
+        <div className="flex flex-wrap gap-3">
           <button
             onClick={fetchFeedbacks}
             disabled={isLoadingFeedbacks}
                           className="px-4 py-2 rounded hover:opacity-90 disabled:opacity-50"
-              style={{ background: '#22262b', color: '#ffffff' }}
           >
-            {isLoadingFeedbacks ? '🔄 Loading...' : '🔄 Refresh Feedbacks'}
+            {isLoadingFeedbacks ? <RefreshCcw className="w-4 h-4 animate-spin" /> : <RefreshCcw className="w-4 h-4" />}
           </button>
           
           {feedbackError && (
@@ -350,6 +331,9 @@ function FeedbackPageContent() {
             </div>
           )}
         </div>
+          </div>
+        </div>
+
 
 
 
@@ -390,7 +374,7 @@ function FeedbackPageContent() {
               />
             ))
           ) : (
-            <div className="glass-card-solid p-12 text-center">
+                          <div className="glass-card-solid p-6 sm:p-12 text-center">
               <div className="text-gray-700 mb-4">
                 {filterType === 'all' ? (
                   "You don't have any accessible feedback yet"
@@ -432,9 +416,9 @@ export default dynamic(() => Promise.resolve(FeedbackPageContent), {
   ssr: false,
   loading: () => (
     <div className="min-h-screen flex">
-      <div className="flex-1 p-8 lg:p-12">
-        <div className="max-w-6xl mx-auto">
-          <div className="animate-pulse space-y-6">
+              <div className="flex-1 p-4 sm:p-8 lg:p-12 overflow-x-hidden">
+          <div className="w-full max-w-full">
+            <div className="animate-pulse space-y-6">
             <div className="h-8 bg-gray-300 rounded w-64"></div>
             <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
               {[...Array(4)].map((_, i) => (

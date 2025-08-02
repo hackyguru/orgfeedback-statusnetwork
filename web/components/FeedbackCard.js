@@ -71,26 +71,26 @@ const FeedbackCard = ({
     }
     
     return (
-      <div className="text-zinc-700 leading-relaxed">
+      <div className="text-zinc-700 leading-relaxed break-words overflow-wrap-anywhere">
         {encryptedMessage}
       </div>
     );
   };
 
   return (
-    <div className="bg-white border border-zinc-200 rounded-lg p-6 hover:border-zinc-300 transition-colors">
+    <div className="bg-white border border-zinc-200 rounded-lg p-4 sm:p-6 hover:border-zinc-300 transition-colors overflow-hidden">
       {/* Header */}
-      <div className="flex justify-between items-start mb-4">
-        <div>
-          <div className="text-sm font-medium text-zinc-900 mb-1">
+      <div className="flex justify-between items-start mb-4 gap-4">
+        <div className="min-w-0 flex-1">
+          <div className="text-sm font-medium text-zinc-900 mb-1 truncate">
             {getSenderDisplay()}
           </div>
-          <div className="text-xs text-zinc-500">
+          <div className="text-xs text-zinc-500 truncate">
             {orgName && `${orgName} • `}
             {formatTimestamp(timestamp)}
           </div>
         </div>
-        <div className="text-xs text-zinc-400 font-mono">
+        <div className="text-xs text-zinc-400 font-mono flex-shrink-0">
           #{index}
         </div>
       </div>

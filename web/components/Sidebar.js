@@ -4,7 +4,7 @@ import Link from 'next/link';
 import { useState, useEffect, useMemo } from 'react';
 import { useRouter } from 'next/router';
 import toast from 'react-hot-toast';
-import { Sparkle, Home, MessageSquare, BarChart3, Settings, Wallet, LogOut } from 'lucide-react';
+import { Sparkle, Home, MessageSquare, BarChart3, Settings, Wallet, LogOut, Plus, Users } from 'lucide-react';
 import blockies from 'ethereum-blockies';
 
 const Sidebar = () => {
@@ -63,11 +63,14 @@ const Sidebar = () => {
     };
   }, [router.pathname]);
 
-  const navigationItems = [
+  const mainNavigationItems = [
     { path: '/', label: 'Home', icon: <Home className="w-6 h-6" />},
     { path: '/feedback', label: 'Feedback', icon: <MessageSquare className="w-6 h-6" />},
-    { path: '/org', label: 'Analytics', icon: <BarChart3 className="w-6 h-6" />},
-    { path: '/feedback/new', label: 'Settings', icon: <Settings className="w-6 h-6" />},
+    { path: '/feedback/new', label: 'Send Feedback', icon: <Plus className="w-6 h-6" />},
+  ];
+
+  const organizationNavigationItems = [
+    { path: '/org', label: 'My Team', icon: <Users className="w-6 h-6" />},
   ];
 
   return (
@@ -105,10 +108,37 @@ const Sidebar = () => {
             </Link>
           </div>
 
-                          {/* Navigation - Centered in middle */}
+                          {/* Main Navigation - Centered in middle */}
                 <div className="flex-1 flex items-center justify-center">
                   <nav className="flex flex-col items-center space-y-6 px-2 py-3 rounded-full" style={{ background: 'rgba(255, 255, 255, 0.8)' }}>
-                    {navigationItems.map((item) => {
+                    {mainNavigationItems.map((item) => {
+                      const isActive = isActivePath(item.path);
+                      return (
+                        <Link
+                          key={item.path}
+                          href={item.path}
+                          onClick={() => setIsMobileMenuOpen(false)}
+                          className={`
+                            w-12 h-12 flex items-center justify-center transition-all duration-150 ease-in-out
+                            ${isActive 
+                              ? 'text-gray-800' 
+                              : 'text-gray-500 hover:text-gray-700'
+                            }
+                          `}
+                          style={isActive ? { background: '#cfc7b5', borderRadius: '50%' } : {}}
+                          title={item.label}
+                        >
+                          {item.icon}
+                        </Link>
+                      );
+                    })}
+                  </nav>
+                </div>
+
+                {/* Organization Navigation - Separate section */}
+                <div className="flex justify-center mb-8">
+                  <nav className="flex flex-col items-center space-y-6 px-2 py-3 rounded-full" style={{ background: 'rgba(255, 255, 255, 0.8)' }}>
+                    {organizationNavigationItems.map((item) => {
                       const isActive = isActivePath(item.path);
                       return (
                         <Link

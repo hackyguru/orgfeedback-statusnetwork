@@ -91,13 +91,13 @@ export default function OrgPage() {
       <div className="min-h-screen flex">
         <Sidebar />
         <div className="flex-1 p-8 lg:p-12">
-          <div className="max-w-6xl mx-auto">
+          <div className="w-full">
             <div className="glass-card-solid p-8 text-center">
-              <h1 className="text-3xl font-bold text-gray-800 mb-4">
+              <h1 className="text-4xl font-bold text-gray-800 mb-2">
                 Organization Management
               </h1>
-              <p className="text-gray-700 mb-6">
-                Use the sidebar to connect your wallet and manage organizations
+              <p className="text-gray-600 text-lg">
+                Create and manage your organizations
               </p>
             </div>
           </div>
@@ -111,7 +111,7 @@ export default function OrgPage() {
       <div className="min-h-screen flex">
         <Sidebar />
         <div className="flex-1 p-8 lg:p-12">
-          <div className="max-w-6xl mx-auto">
+          <div className="w-full">
             <div className="glass-card-solid p-8">
               <div className="animate-pulse">
                 <div className="h-8 bg-gray-300 rounded w-1/2 mb-4"></div>
@@ -130,10 +130,13 @@ export default function OrgPage() {
       <Sidebar />
       
       <div className="flex-1 p-8 lg:p-12">
-        <div className="max-w-6xl mx-auto">
-        <h1 className="text-3xl font-bold text-gray-800 mb-6">
+        <div className="w-full">
+        <h1 className="text-4xl font-bold text-gray-800 mb-2">
           Organization Management
         </h1>
+        <p className="text-gray-600 text-lg mb-8">
+          Create and manage your organizations
+        </p>
 
         {ownedOrg ? (
           // User already owns an organization
@@ -154,7 +157,7 @@ export default function OrgPage() {
               </div>
             </div>
 
-            <div className="flex flex-col sm:flex-row gap-4">
+            <div className="flex flex-col sm:flex-row gap-4 jus">
               <button
                 onClick={() => router.push(`/org/${address}`)}
                 className="px-6 py-3 rounded-lg font-semibold hover:opacity-90 transition-all transform hover:scale-105"
