@@ -214,7 +214,7 @@ export default function Home() {
                       <div className="flex items-center text-sm">
                         <Link
                           href="/org"
-                          className="px-4 py-2 bg-[#83785f] text-[#f8f6f0] rounded-lg font-medium hover:bg-purple-200 transition-colors"
+                          className="px-4 py-2 bg-[#83785f] text-[#f8f6f0] rounded-lg font-medium hover:bg-[#877f6c] transition-colors"
                         >
                           Manage Organizations
                         </Link>
@@ -269,25 +269,79 @@ export default function Home() {
               </div>
             </div>
             
-            <div className="glass-card-solid p-8 hover:shadow-lg transition-all group">
-              <div className="flex items-center justify-between mb-4">
-                <div className="p-3 rounded-xl bg-gradient-to-br from-amber-50 to-amber-100 group-hover:from-amber-100 group-hover:to-amber-200 transition-all">
-                  <Crown className="w-8 h-8 text-amber-600" />
+            <div className="bg-[#83785f] p-8 hover:shadow-lg transition-all group rounded-2xl min-h-[300px]">
+              <div className="flex items-stretch justify-between h-full">
+                {/* Left side - Stats */}
+                <div className="flex-1 relative flex flex-col h-full">
+                  {/* Background count number */}
+                  <div className="absolute left-1/2 top-1/2 transform -translate-x-1/2 -translate-y-1/2 text-[18rem] font-bold text-[#cfc7b5] opacity-30 pointer-events-none">
+                    {userOrgs.filter((orgId: string) => orgId.toLowerCase() === address?.toLowerCase()).length}
+                  </div>
+                  
+                  <div className="relative z-10 flex-1 flex flex-col h-full">
+                    {/* Icon at top */}
+                    <div className="flex items-center mb-4">
+                      <div className="p-3 rounded-xl bg-[#cfc7b5] transition-all">
+                        <Crown className="w-8 h-8 text-[#83785f]" />
+                      </div>
+                    </div>
+                    
+                    {/* Spacer to push content to bottom */}
+                    <div className="flex-grow"></div>
+                    
+                    {/* Content at bottom */}
+                    <div className="mt-auto">
+                      {/* Text content */}
+                      <div className="text-[#f8f6f0] font-semibold text-lg mb-3">
+                        {userOrgs.filter((orgId: string) => orgId.toLowerCase() === address?.toLowerCase()).length} Organizations Owned
+                      </div>
+                      
+                      {/* Button at absolute bottom */}
+                      <div className="flex items-center text-sm">
+                        <Link
+                          href="/org"
+                          className="px-4 py-2 bg-[#cfc7b5] text-[#83785f] rounded-lg font-medium hover:bg-[#f8f6f0] transition-colors"
+                        >
+                          Manage my team
+                        </Link>
+                      </div>
+                    </div>
+                  </div>
                 </div>
-                <div className="p-1 rounded-full bg-amber-100">
-                  <Sparkles className="w-4 h-4 text-amber-600" />
+
+                {/* Right side - Organization Stats */}
+                <div className="ml-8 w-96 space-y-3">
+                  {/* Members Card */}
+                  <div className="bg-white rounded-lg p-1 border border-gray-200 shadow-sm">
+                    <div className="text-[#83785f] font-semibold text-xs mb-1">
+                      Members in the organization
+                    </div>
+                    <div className="text-[#83785f] text-sm font-bold">
+                      3
+                    </div>
+                  </div>
+                  
+                  {/* Feedback Card */}
+                  <div className="bg-white rounded-lg p-1 border border-gray-200 shadow-sm">
+                    <div className="text-[#83785f] font-semibold text-xs mb-1">
+                      Feedback exchanged in the organization
+                    </div>
+                    <div className="text-[#83785f] text-sm font-bold">
+                      12
+                    </div>
+                  </div>
+                  
+                  {/* ENS Card */}
+                  <div className="bg-white rounded-lg p-1 border border-gray-200 shadow-sm">
+                    <div className="text-[#83785f] font-semibold text-xs mb-1">
+                      ENS
+                    </div>
+                    <div className="text-[#83785f] text-sm font-bold">
+                      Coming soon
+                    </div>
+                  </div>
+                  
                 </div>
-              </div>
-              <div className="text-4xl font-bold text-gray-800 mb-2">
-                {userOrgs.filter((orgId: string) => orgId.toLowerCase() === address?.toLowerCase()).length}
-              </div>
-              <div className="text-gray-700 font-semibold text-lg mb-3">
-                Organizations Owned
-              </div>
-              <div className="flex items-center text-sm">
-                <span className="px-2 py-1 bg-amber-100 text-amber-700 rounded-full font-medium">
-                  Admin
-                </span>
               </div>
             </div>
           </div>
