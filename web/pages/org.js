@@ -6,17 +6,121 @@ import { CONTRACT_ADDRESS } from '@/lib/config';
 import { ORG_FEEDBACK_ABI } from '@/lib/abi';
 import toast from 'react-hot-toast';
 
+// Utility function to parse smart contract error messages
+const parseContractError = (error) => {
+  if (!error) return 'Unknown error occurred';
+  
+  console.log('🔍 Raw error object:', error);
+  console.log('🔍 Error type:', typeof error);
+  console.log('🔍 Error keys:', Object.keys(error));
+  
+  let errorMessage = '';
+  
+  // Handle different error object structures
+  if (error.message) {
+    errorMessage = error.message;
+  } else if (error.details) {
+    errorMessage = error.details;
+  } else if (error.reason) {
+    errorMessage = error.reason;
+  } else if (typeof error === 'string') {
+    errorMessage = error;
+  } else {
+    errorMessage = error.toString();
+  }
+  
+  console.log('🔍 Parsed error message:', errorMessage);
+  
+  // Common smart contract error patterns
+  if (errorMessage.includes('Already a member')) {
+    return 'This address is already a member of the organization';
+  }
+  if (errorMessage.includes('Not a member')) {
+    return 'This address is not a member of the organization';
+  }
+  if (errorMessage.includes('Must be a member first')) {
+    return 'Address must be a member before becoming a moderator';
+  }
+  if (errorMessage.includes('Already a moderator')) {
+    return 'This address is already a moderator';
+  }
+  if (errorMessage.includes('Not a moderator')) {
+    return 'This address is not a moderator';
+  }
+  if (errorMessage.includes('Not org owner')) {
+    return 'Only the organization owner can perform this action';
+  }
+  if (errorMessage.includes('Not org owner or moderator')) {
+    return 'Only owners and moderators can perform this action';
+  }
+  if (errorMessage.includes('Cannot remove owner')) {
+    return 'Cannot remove the organization owner';
+  }
+  if (errorMessage.includes('Org does not exist')) {
+    return 'Organization does not exist';
+  }
+  if (errorMessage.includes('You already own an org')) {
+    return 'You already own an organization';
+  }
+  if (errorMessage.includes('execution reverted')) {
+    // Try to extract the actual error message from the revert
+    const match = errorMessage.match(/execution reverted: (.+)/);
+    if (match && match[1]) {
+      return match[1];
+    }
+    return 'Transaction failed - please check your input and try again';
+  }
+  if (errorMessage.includes('Internal JSON-RPC error')) {
+    // This is a generic error, try to get more specific info
+    if (error.data) {
+      console.log('🔍 Error data:', error.data);
+    }
+    if (error.error) {
+      console.log('🔍 Nested error:', error.error);
+    }
+    return 'Transaction failed - the address may already be a member or you may not have permission';
+  }
+  
+  // Handle ContractFunctionExecutionError specifically
+  if (errorMessage.includes('ContractFunctionExecutionError')) {
+    if (errorMessage.includes('addMember')) {
+      return 'This address is already a member of the organization';
+    }
+    if (errorMessage.includes('removeMember')) {
+      return 'This address is not a member of the organization';
+    }
+    if (errorMessage.includes('addModerator')) {
+      return 'Address must be a member before becoming a moderator';
+    }
+    if (errorMessage.includes('removeModerator')) {
+      return 'This address is not a moderator';
+    }
+    if (errorMessage.includes('createOrganization')) {
+      return 'You already own an organization';
+    }
+    if (errorMessage.includes('updateLogo')) {
+      return 'Failed to update logo - you may not have permission';
+    }
+    return 'Transaction failed - please check your input and try again';
+  }
+  
+  return `Transaction failed: ${errorMessage}`;
+};
+
 export default function OrgPage() {
   const { address, isConnected } = useAccount();
   const router = useRouter();
   const [orgName, setOrgName] = useState('');
   const [orgDescription, setOrgDescription] = useState('');
+  const [orgLogo, setOrgLogo] = useState('');
   const [isCreating, setIsCreating] = useState(false);
   const [ownedOrg, setOwnedOrg] = useState(null);
+  const [isHydrated, setIsHydrated] = useState(false);
+  const [isUpdatingLogo, setIsUpdatingLogo] = useState(false);
 
   const { writeContract, data: hash, error } = useWriteContract();
   
-  const { isLoading: isConfirming, isSuccess: isConfirmed } = useWaitForTransactionReceipt({
+  const { isLoading: isConfirming, isSuccess: isConfirmed, error: receiptError } = useWaitForTransactionReceipt({
     hash,
   });
 
@@ -34,29 +138,61 @@ export default function OrgPage() {
       setOwnedOrg({
         name: orgMetadata[0],
         description: orgMetadata[1],
-        owner: orgMetadata[2],
+        logoIpfsCid: orgMetadata[2],
+        owner: orgMetadata[3],
       });
     }
   }, [orgMetadata]);
 
   useEffect(() => {
     if (isConfirmed) {
-      setIsCreating(false);
-      toast.success('Organization created successfully!');
-      setOrgName('');
-      setOrgDescription('');
-      // Refresh the page to show the new organization
-      window.location.reload();
+      if (isCreating) {
+        setIsCreating(false);
+        toast.success('Organization created successfully!');
+        setOrgName('');
+        setOrgDescription('');
+        setOrgLogo('');
+        // Refresh the page to show the new organization
+        window.location.reload();
+      } else if (isUpdatingLogo) {
+        setIsUpdatingLogo(false);
+        toast.success('Logo updated successfully!');
+        setOrgLogo('');
+        // Refresh the page to show the updated logo
+        window.location.reload();
+      }
     }
-  }, [isConfirmed]);
+  }, [isConfirmed, isCreating, isUpdatingLogo]);
 
   useEffect(() => {
+    console.log('🔍 Error useEffect triggered, error:', error);
     if (error) {
       setIsCreating(false);
-      toast.error('Failed to create organization');
+      setIsUpdatingLogo(false);
+      
+      const errorMessage = parseContractError(error);
+      toast.error(errorMessage);
       console.error('Transaction error:', error);
     }
   }, [error]);
+
+  // Also handle errors from useWaitForTransactionReceipt
+  useEffect(() => {
+    if (receiptError && !isConfirming) {
+      console.log('🔍 Error from useWaitForTransactionReceipt:', receiptError);
+      setIsCreating(false);
+      setIsUpdatingLogo(false);
+      
+      const errorMessage = parseContractError(receiptError);
+      toast.error(errorMessage);
+      console.error('Transaction receipt error:', receiptError);
+    }
+  }, [receiptError, isConfirming]);
+
+  // Fix hydration mismatch by ensuring client-side only rendering
+  useEffect(() => {
+    setIsHydrated(true);
+  }, []);
 
   const handleCreateOrganization = async (e) => {
     e.preventDefault();
@@ -81,8 +217,38 @@ export default function OrgPage() {
       });
     } catch (err) {
       setIsCreating(false);
-      toast.error('Failed to create organization');
+      const errorMessage = parseContractError(err);
+      toast.error(errorMessage);
       console.error('Error creating organization:', err);
+    }
+  };
+
+  const handleUpdateLogo = async (e) => {
+    e.preventDefault();
+    
+    if (!orgLogo.trim()) {
+      toast.error('Please enter an IPFS CID for the logo');
+      return;
+    }
+
+    if (!isConnected) {
+      toast.error('Please connect your wallet');
+      return;
+    }
+
+    try {
+      setIsUpdatingLogo(true);
+      writeContract({
+        address: CONTRACT_ADDRESS,
+        abi: ORG_FEEDBACK_ABI,
+        functionName: 'updateLogo',
+        args: [address, orgLogo.trim()],
+      });
+    } catch (err) {
+      setIsUpdatingLogo(false);
+      const errorMessage = parseContractError(err);
+      toast.error(errorMessage);
+      console.error('Error updating logo:', err);
     }
   };
 
@@ -106,17 +272,49 @@ export default function OrgPage() {
     );
   }
 
+  // Always render the same basic structure to prevent hydration mismatch
+  if (!isHydrated) {
+    return (
+      <div className="min-h-screen flex">
+        <Sidebar />
+        <div className="flex-1 p-8 lg:p-12">
+          <div className="w-full">
+            <h1 className="text-4xl font-bold text-gray-800 mb-2">
+              Organization Management
+            </h1>
+            <p className="text-gray-600 text-lg mb-8">
+              Create and manage your organizations
+            </p>
+            <div className="glass-card-solid p-8 text-center">
+              <div className="animate-pulse">
+                <div className="h-8 bg-gray-300 rounded w-1/2 mb-4 mx-auto"></div>
+                <div className="h-4 bg-gray-300 rounded w-full mb-2"></div>
+                <div className="h-4 bg-gray-300 rounded w-3/4 mx-auto"></div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    );
+  }
+
   if (isLoadingOrg) {
     return (
       <div className="min-h-screen flex">
         <Sidebar />
         <div className="flex-1 p-8 lg:p-12">
           <div className="w-full">
-            <div className="glass-card-solid p-8">
+            <h1 className="text-4xl font-bold text-gray-800 mb-2">
+              Organization Management
+            </h1>
+            <p className="text-gray-600 text-lg mb-8">
+              Create and manage your organizations
+            </p>
+            <div className="glass-card-solid p-8 text-center">
               <div className="animate-pulse">
-                <div className="h-8 bg-gray-300 rounded w-1/2 mb-4"></div>
+                <div className="h-8 bg-gray-300 rounded w-1/2 mb-4 mx-auto"></div>
                 <div className="h-4 bg-gray-300 rounded w-full mb-2"></div>
-                <div className="h-4 bg-gray-300 rounded w-3/4"></div>
+                <div className="h-4 bg-gray-300 rounded w-3/4 mx-auto"></div>
               </div>
             </div>
           </div>
@@ -152,9 +350,41 @@ export default function OrgPage() {
               <p className="text-gray-700 leading-relaxed mb-4">
                 {ownedOrg.description}
               </p>
-              <div className="text-sm text-zinc-500 font-mono">
+              <div className="text-sm text-zinc-500 font-mono mb-4">
                 Organization ID: {address}
               </div>
+              {ownedOrg.logoIpfsCid && (
+                <div className="text-sm text-gray-600">
+                  Logo IPFS CID: {ownedOrg.logoIpfsCid}
+                </div>
+              )}
+            </div>
+
+            {/* Logo Update Section */}
+            <div className="mb-6 p-4 bg-gray-50 rounded-lg">
+              <h4 className="text-sm font-medium text-gray-800 mb-3">
+                Update Organization Logo
+              </h4>
+              <form onSubmit={handleUpdateLogo} className="flex gap-3">
+                <input
+                  type="text"
+                  value={orgLogo}
+                  onChange={(e) => setOrgLogo(e.target.value)}
+                  placeholder="Enter IPFS CID for logo (e.g., QmXxX...)"
+                  className="flex-1 px-3 py-2 bg-white border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#cfc7b5] focus:border-transparent outline-none transition-colors text-sm"
+                  disabled={isUpdatingLogo || isConfirming}
+                />
+                <button
+                  type="submit"
+                  disabled={isUpdatingLogo || isConfirming || !orgLogo.trim()}
+                  className="px-4 py-2 bg-[#83785f] text-white rounded-lg font-medium hover:bg-[#877f6c] transition-colors disabled:opacity-50 disabled:cursor-not-allowed text-sm"
+                >
+                  {isUpdatingLogo || isConfirming ? 'Updating...' : 'Update Logo'}
+                </button>
+              </form>
+              <p className="text-xs text-gray-500 mt-2">
+                Upload your logo to IPFS and paste the CID here. Logo is optional and can be updated anytime.
+              </p>
             </div>
 
             <div className="flex flex-col sm:flex-row gap-4 jus">

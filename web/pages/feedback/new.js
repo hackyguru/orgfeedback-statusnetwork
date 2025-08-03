@@ -399,10 +399,10 @@ export default function NewFeedbackPage() {
                   />
                   <div>
                     <div className="text-lg font-medium text-gray-800">
-                      Reveal my identity to the organization admin
+                      Reveal my identity to the organization admin & moderators
                     </div>
                     <div className="text-sm text-gray-600 mt-1">
-                      If unchecked, the admin won&apos;t know who sent this feedback. Enable this if you want admin oversight.
+                      If unchecked, the admin and moderators won&apos;t know who sent this feedback. Enable this if you want admin/moderator oversight.
                     </div>
                   </div>
                 </label>
@@ -418,6 +418,8 @@ export default function NewFeedbackPage() {
                 <li>• Your message will be stored on the blockchain</li>
                 <li>• Your anonymity settings control identity revelation</li>
                 <li>• Only organization members can access feedback</li>
+                <li>• Admins and moderators can see all feedback in the organization</li>
+                <li>• Anonymous feedback remains anonymous unless you allow identity revelation</li>
                 <li>• All feedback is stored securely and immutably</li>
               </ul>
             </div>

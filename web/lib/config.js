@@ -1,5 +1,5 @@
 // Contract configuration for OrgFeedback on Status Network
-export const CONTRACT_ADDRESS = "0xAab9Feae724F7251c6FCB9632423af9133C64480";
+export const CONTRACT_ADDRESS = "0x2BfeB9b810CD42C12018076031A548FB357517FC";
 
 // Status Network Testnet configuration
 export const STATUS_TESTNET = {
@@ -12,10 +12,18 @@ export const STATUS_TESTNET = {
   },
   rpcUrls: {
     public: {
-      http: ['https://public.sepolia.rpc.status.network'],
+      http: [
+        'https://public.sepolia.rpc.status.network',
+        'https://sepolia.status.network',
+        'https://rpc.sepolia.status.network'
+      ],
     },
     default: {
-      http: ['https://public.sepolia.rpc.status.network'],
+      http: [
+        'https://public.sepolia.rpc.status.network',
+        'https://sepolia.status.network',
+        'https://rpc.sepolia.status.network'
+      ],
     },
   },
   blockExplorers: {

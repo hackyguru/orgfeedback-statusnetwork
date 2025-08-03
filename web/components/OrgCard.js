@@ -20,7 +20,8 @@ const OrgCard = ({ orgId, isOwner = false }) => {
       setOrgData({
         name: metadata[0],
         description: metadata[1],
-        owner: metadata[2],
+        logoIpfsCid: metadata[2],
+        owner: metadata[3],
       });
     }
   }, [metadata]);
@@ -54,9 +55,29 @@ const OrgCard = ({ orgId, isOwner = false }) => {
   return (
     <div className="glass-card-solid p-6 hover:shadow-lg transition-all transform hover:scale-105 group">
       <div className="mb-4">
-        <h3 className="text-lg font-semibold text-gray-800 mb-2 group-hover:text-lime-600 transition-colors">
-          {orgData.name}
-        </h3>
+        <div className="flex items-start space-x-4 mb-3">
+          {orgData.logoIpfsCid ? (
+            <img
+              src={`https://ipfs.io/ipfs/${orgData.logoIpfsCid}`}
+              alt={`${orgData.name} logo`}
+              className="w-12 h-12 rounded-lg object-cover border border-gray-200"
+              onError={(e) => {
+                e.target.style.display = 'none';
+                e.target.nextSibling.style.display = 'flex';
+              }}
+            />
+          ) : null}
+          <div className={`w-12 h-12 bg-[#83785f] rounded-lg flex items-center justify-center ${orgData.logoIpfsCid ? 'hidden' : 'flex'}`}>
+            <span className="text-white text-lg font-bold">
+              {orgData.name.charAt(0).toUpperCase()}
+            </span>
+          </div>
+          <div className="flex-1">
+            <h3 className="text-lg font-semibold text-gray-800 mb-1 group-hover:text-lime-600 transition-colors">
+              {orgData.name}
+            </h3>
+          </div>
+        </div>
         <p className="text-gray-700 text-sm leading-relaxed">
           {orgData.description}
         </p>

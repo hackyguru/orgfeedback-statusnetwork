@@ -40,6 +40,33 @@ export const ORG_FEEDBACK_ABI = [
     "name": "OrganizationCreated",
     "type": "event"
   },
+  {
+    "anonymous": false,
+    "inputs": [
+      {"indexed": true, "internalType": "address", "name": "orgId", "type": "address"},
+      {"indexed": true, "internalType": "address", "name": "moderator", "type": "address"}
+    ],
+    "name": "ModeratorAdded",
+    "type": "event"
+  },
+  {
+    "anonymous": false,
+    "inputs": [
+      {"indexed": true, "internalType": "address", "name": "orgId", "type": "address"},
+      {"indexed": true, "internalType": "address", "name": "moderator", "type": "address"}
+    ],
+    "name": "ModeratorRemoved",
+    "type": "event"
+  },
+  {
+    "anonymous": false,
+    "inputs": [
+      {"indexed": true, "internalType": "address", "name": "orgId", "type": "address"},
+      {"indexed": false, "internalType": "string", "name": "logoIpfsCid", "type": "string"}
+    ],
+    "name": "LogoUpdated",
+    "type": "event"
+  },
   // Functions
   {
     "inputs": [
@@ -91,7 +118,19 @@ export const ORG_FEEDBACK_ABI = [
     "outputs": [
       {"internalType": "string", "name": "name", "type": "string"},
       {"internalType": "string", "name": "description", "type": "string"},
+      {"internalType": "string", "name": "logoIpfsCid", "type": "string"},
       {"internalType": "address", "name": "owner", "type": "address"}
+    ],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {"internalType": "address", "name": "orgId", "type": "address"}
+    ],
+    "name": "getOrgMembers",
+    "outputs": [
+      {"internalType": "address[]", "name": "", "type": "address[]"}
     ],
     "stateMutability": "view",
     "type": "function"
@@ -117,6 +156,48 @@ export const ORG_FEEDBACK_ABI = [
       {"internalType": "bool", "name": "", "type": "bool"}
     ],
     "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {"internalType": "address", "name": "orgId", "type": "address"},
+      {"internalType": "address", "name": "user", "type": "address"}
+    ],
+    "name": "isModerator",
+    "outputs": [
+      {"internalType": "bool", "name": "", "type": "bool"}
+    ],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {"internalType": "address", "name": "orgId", "type": "address"},
+      {"internalType": "address", "name": "moderator", "type": "address"}
+    ],
+    "name": "addModerator",
+    "outputs": [],
+    "stateMutability": "nonpayable",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {"internalType": "address", "name": "orgId", "type": "address"},
+      {"internalType": "address", "name": "moderator", "type": "address"}
+    ],
+    "name": "removeModerator",
+    "outputs": [],
+    "stateMutability": "nonpayable",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {"internalType": "address", "name": "orgId", "type": "address"},
+      {"internalType": "string", "name": "logoIpfsCid", "type": "string"}
+    ],
+    "name": "updateLogo",
+    "outputs": [],
+    "stateMutability": "nonpayable",
     "type": "function"
   },
   {
