@@ -7,6 +7,7 @@ import { ORG_FEEDBACK_ABI } from '@/lib/abi';
 import Link from 'next/link';
 import { toast } from 'react-hot-toast';
 import blockies from 'ethereum-blockies';
+import wakuService from '@/lib/waku';
 import {
   Sheet,
   SheetContent,
@@ -49,40 +50,99 @@ export default function Home() {
   const [isRequestFeedbackOpen, setIsRequestFeedbackOpen] = useState(false);
   const [requestAddresses, setRequestAddresses] = useState('');
   const [requestContent, setRequestContent] = useState('');
+  const [feedbackRequests, setFeedbackRequests] = useState<any[]>([]);
+  const [isLoadingRequests, setIsLoadingRequests] = useState(false);
+  const [isSendingRequest, setIsSendingRequest] = useState(false);
 
   const formatAddress = (address: string) => {
     if (!address) return '';
     return `${address.slice(0, 6)}...${address.slice(-4)}`;
   };
 
-  // Mock feedback requests data
-  const feedbackRequests = [
-    {
-      id: 1,
-      address: '0x742d35Cc6634C0532925a3b8D4C9db96C4b4d8b6',
-      content: 'Hey can you give me some feedback on my recent project?',
-      timestamp: '2 hours ago'
-    },
-    {
-      id: 2,
-      address: '0x8ba1f109551bD432803012645Hac136c772c3c7',
-      content: 'I would really appreciate your thoughts on my presentation skills',
-      timestamp: '1 day ago'
-    },
-    {
-      id: 3,
-      address: '0x1234567890123456789012345678901234567890',
-      content: 'Can you review my code and provide some suggestions?',
-      timestamp: '3 days ago'
-    }
-  ];
+  const formatTimestamp = (timestamp: number) => {
+    const now = Date.now();
+    const diff = now - timestamp;
+    const minutes = Math.floor(diff / 60000);
+    const hours = Math.floor(diff / 3600000);
+    const days = Math.floor(diff / 86400000);
 
-  const handleAcceptRequest = (requestId: number) => {
-    // Handle accept logic here
-    toast.success('Feedback request accepted!');
+    if (minutes < 1) return 'Just now';
+    if (minutes < 60) return `${minutes} minute${minutes > 1 ? 's' : ''} ago`;
+    if (hours < 24) return `${hours} hour${hours > 1 ? 's' : ''} ago`;
+    return `${days} day${days > 1 ? 's' : ''} ago`;
   };
 
-  const handleRequestFeedback = () => {
+  // Load feedback requests from Waku store
+  const loadFeedbackRequests = useCallback(async () => {
+    if (!address) return;
+
+    setIsLoadingRequests(true);
+    try {
+      const requests = await wakuService.getStoredRequests(address);
+      setFeedbackRequests(requests);
+      
+      if (requests.length === 0) {
+        console.log('ℹ️ No stored feedback requests found (this is normal for new users)');
+      }
+    } catch (error) {
+      console.error('Failed to load feedback requests:', error);
+      toast.error('Failed to load feedback requests');
+    } finally {
+      setIsLoadingRequests(false);
+    }
+  }, [address]);
+
+  // Listen for new feedback requests
+  useEffect(() => {
+    if (!address) return;
+
+    const setupWakuListener = async () => {
+      try {
+        const unsubscribe = await wakuService.listenForRequests(address, (request: any) => {
+          setFeedbackRequests(prev => [request, ...prev]);
+          toast.success('New feedback request received!');
+        });
+        
+        // Store the unsubscribe function if needed
+        if (typeof unsubscribe === 'function') {
+          console.log('✅ Waku listener setup successful');
+        } else {
+          console.warn('⚠️ Waku listener setup completed but no unsubscribe function returned');
+        }
+      } catch (error) {
+        console.error('Failed to setup Waku listener:', error);
+        toast.error('Failed to setup feedback request listener');
+      }
+    };
+
+    setupWakuListener();
+    loadFeedbackRequests();
+
+    return () => {
+      wakuService.cleanup();
+    };
+  }, [address, loadFeedbackRequests]);
+
+  // Cleanup Waku service on unmount
+  useEffect(() => {
+    return () => {
+      try {
+        wakuService.cleanup();
+      } catch (error) {
+        console.error('Error during Waku cleanup:', error);
+      }
+    };
+  }, []);
+
+  const handleAcceptRequest = (request: { sender: string; message: string }) => {
+    // Navigate to send feedback page with the sender pre-selected
+    const feedbackUrl = `/feedback/new?recipient=${request.sender}&message=${encodeURIComponent(request.message)}`;
+    window.open(feedbackUrl, '_blank');
+    setIsFeedbackRequestsOpen(false);
+    toast.success('Redirecting to send feedback...');
+  };
+
+  const handleRequestFeedback = async () => {
     if (!requestAddresses.trim() || !requestContent.trim()) {
       toast.error('Please fill in all fields');
       return;
@@ -96,11 +156,19 @@ export default function Home() {
       return;
     }
     
-    // Handle request logic here
-    toast.success('Feedback request sent successfully!');
-    setIsRequestFeedbackOpen(false);
-    setRequestAddresses('');
-    setRequestContent('');
+    setIsSendingRequest(true);
+    try {
+      await wakuService.sendFeedbackRequests(address, addresses, requestContent);
+      toast.success(`Feedback request sent to ${addresses.length} recipient${addresses.length > 1 ? 's' : ''}!`);
+      setIsRequestFeedbackOpen(false);
+      setRequestAddresses('');
+      setRequestContent('');
+    } catch (error) {
+      console.error('Failed to send feedback request:', error);
+      toast.error('Failed to send feedback request');
+    } finally {
+      setIsSendingRequest(false);
+    }
   };
 
   const parseAddresses = (input: string) => {
@@ -567,10 +635,17 @@ export default function Home() {
           </SheetHeader>
           
           <div className="px-6 py-6 overflow-y-auto h-full">
-            {feedbackRequests.length === 0 ? (
+            {isLoadingRequests ? (
+              <div className="flex items-center justify-center py-8">
+                <div className="animate-spin h-6 w-6 border-2 border-gray-300 border-t-[#83785f] rounded-full"></div>
+                <span className="ml-3 text-gray-600">Loading feedback requests...</span>
+              </div>
+            ) : feedbackRequests.length === 0 ? (
               <div className="text-center py-12">
                 <MessageCircleReply className="w-12 h-12 text-gray-400 mx-auto mb-4" />
                 <p className="text-gray-500">No feedback requests yet</p>
+                <p className="text-sm text-gray-400 mt-2">When someone sends you a feedback request, it will appear here</p>
+                <p className="text-xs text-gray-300 mt-4">💡 Try sending a feedback request to someone else to test the feature!</p>
               </div>
             ) : (
               <div className="space-y-4">
@@ -578,22 +653,29 @@ export default function Home() {
                   <div key={request.id} className="bg-white rounded-lg p-5 border border-gray-200 shadow-sm hover:shadow-md transition-shadow">
                     {/* Address */}
                     <div className="flex items-center justify-between mb-4">
-                      <div className="text-sm font-mono text-gray-600 bg-gray-50 px-3 py-1 rounded-md">
-                        {formatAddress(request.address)}
+                      <div className="flex items-center space-x-2">
+                        <img
+                          src={blockies.create({ seed: request.sender }).toDataURL()}
+                          alt="Address avatar"
+                          className="w-6 h-6 rounded-full"
+                        />
+                        <div className="text-sm font-mono text-gray-600 bg-gray-50 px-3 py-1 rounded-md">
+                          {formatAddress(request.sender)}
+                        </div>
                       </div>
                       <div className="text-xs text-gray-500 bg-gray-100 px-2 py-1 rounded-full">
-                        {request.timestamp}
+                        {formatTimestamp(request.timestamp)}
                       </div>
                     </div>
                     
                     {/* Content */}
                     <div className="text-gray-800 mb-5 leading-relaxed">
-                      {request.content}
+                      {request.message}
                     </div>
                     
                     {/* Accept Button */}
                     <button
-                      onClick={() => handleAcceptRequest(request.id)}
+                      onClick={() => handleAcceptRequest(request)}
                       className="w-full bg-[#83785f] text-white py-3 px-4 rounded-lg font-medium hover:bg-[#877f6c] transition-colors shadow-sm hover:shadow-md"
                     >
                       Accept Request
@@ -669,14 +751,23 @@ export default function Home() {
             <button
               onClick={() => setIsRequestFeedbackOpen(false)}
               className="px-4 py-2 text-gray-600 border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors"
+              disabled={isSendingRequest}
             >
               Cancel
             </button>
             <button
               onClick={handleRequestFeedback}
-              className="px-6 py-2 bg-[#83785f] text-white rounded-lg font-medium hover:bg-[#877f6c] transition-colors"
+              disabled={isSendingRequest || !requestAddresses.trim() || !requestContent.trim()}
+              className="px-6 py-2 bg-[#83785f] text-white rounded-lg font-medium hover:bg-[#877f6c] transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
             >
-              Send Request
+              {isSendingRequest ? (
+                <div className="flex items-center space-x-2">
+                  <div className="animate-spin h-4 w-4 border-2 border-white border-t-transparent rounded-full"></div>
+                  <span>Sending...</span>
+                </div>
+              ) : (
+                'Send Request'
+              )}
             </button>
           </div>
         </DialogContent>

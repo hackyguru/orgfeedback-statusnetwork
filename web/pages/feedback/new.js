@@ -61,6 +61,16 @@ export default function NewFeedbackPage() {
     enabled: !!selectedOrgId,
   });
 
+  // Handle URL parameters for pre-filling form when accepting feedback request
+  useEffect(() => {
+    if (router.query.recipient) {
+      setReceiverAddress(router.query.recipient);
+    }
+    if (router.query.message) {
+      setMessage(router.query.message);
+    }
+  }, [router.query]);
+
   useEffect(() => {
     if (organizations) {
       setUserOrgs(organizations);

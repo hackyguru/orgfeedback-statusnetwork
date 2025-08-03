@@ -14,16 +14,38 @@ const Sidebar = () => {
   const [isConnecting, setIsConnecting] = useState(false);
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const [isHydrated, setIsHydrated] = useState(false);
+  const [hasManuallyDisconnected, setHasManuallyDisconnected] = useState(false);
   const router = useRouter();
+
+  // Initialize manual disconnect state from localStorage
+  useEffect(() => {
+    const storedDisconnectState = localStorage.getItem('hasManuallyDisconnected');
+    if (storedDisconnectState === 'true') {
+      setHasManuallyDisconnected(true);
+    }
+  }, []);
 
   // Fix hydration mismatch by ensuring client-side only rendering for connection state
   useEffect(() => {
     setIsHydrated(true);
   }, []);
 
+  // Handle auto-reconnection prevention
+  useEffect(() => {
+    if (hasManuallyDisconnected && isConnected) {
+      // If user manually disconnected but wallet reconnected automatically,
+      // disconnect again to respect user's choice
+      disconnect();
+      setHasManuallyDisconnected(false);
+      localStorage.removeItem('hasManuallyDisconnected');
+    }
+  }, [isConnected, hasManuallyDisconnected, disconnect]);
+
   const handleConnect = async () => {
     try {
       setIsConnecting(true);
+      setHasManuallyDisconnected(false);
+      localStorage.removeItem('hasManuallyDisconnected');
       await connect({ connector: metaMask() });
       toast.success('Wallet connected successfully!');
     } catch (error) {
@@ -36,6 +58,8 @@ const Sidebar = () => {
 
   const handleDisconnect = () => {
     disconnect();
+    setHasManuallyDisconnected(true);
+    localStorage.setItem('hasManuallyDisconnected', 'true');
     toast.success('Wallet disconnected');
   };
 

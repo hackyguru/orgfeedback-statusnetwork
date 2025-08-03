@@ -17,6 +17,7 @@
     "hardhat": "^2.26.1"
   },
   "dependencies": {
+    "@waku/sdk": "^0.0.33",
     "framer-motion": "^12.23.12",
     "lucide-react": "^0.536.0"
   }
