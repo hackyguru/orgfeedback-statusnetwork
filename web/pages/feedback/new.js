@@ -30,6 +30,7 @@ export default function NewFeedbackPage() {
   // No encryption state needed
   const [userOrgs, setUserOrgs] = useState([]);
   const [orgMembers, setOrgMembers] = useState({});
+  const [allOrgMetadata, setAllOrgMetadata] = useState({});
   
   // Multi-step state
   const [currentStep, setCurrentStep] = useState(1);
@@ -65,6 +66,35 @@ export default function NewFeedbackPage() {
       if (organizations.length === 1) {
         setSelectedOrgId(organizations[0]);
       }
+      
+      // Fetch metadata for all organizations
+      const fetchAllOrgMetadata = async () => {
+        try {
+          const { ethers } = await import('ethers');
+          const provider = new ethers.BrowserProvider(window.ethereum);
+          const contract = new ethers.Contract(CONTRACT_ADDRESS, ORG_FEEDBACK_ABI, provider);
+          
+          const metadata = {};
+          for (const orgId of organizations) {
+            try {
+              const orgData = await contract.getOrgMetadata(orgId);
+              metadata[orgId] = {
+                name: orgData[0],
+                description: orgData[1],
+                logoIpfsCid: orgData[2],
+                owner: orgData[3]
+              };
+            } catch (error) {
+              console.log(`Error fetching metadata for ${orgId}:`, error);
+            }
+          }
+          setAllOrgMetadata(metadata);
+        } catch (error) {
+          console.log('Error fetching organization metadata:', error);
+        }
+      };
+      
+      fetchAllOrgMetadata();
     }
   }, [organizations]);
 
@@ -288,26 +318,67 @@ export default function NewFeedbackPage() {
                   <label htmlFor="organization" className="block text-lg font-semibold text-gray-800 mb-4">
                     Select Organization *
                   </label>
-                  <select
-                    id="organization"
-                    value={selectedOrgId}
-                    onChange={(e) => setSelectedOrgId(e.target.value)}
-                    className="w-full px-6 py-4 border border-gray-300 rounded-xl focus:ring-2 focus:ring-gray-500 focus:border-transparent outline-none transition-all text-lg"
-                    disabled={isSending || isConfirming}
-                    required
-                  >
-                    <option value="">Choose an organization...</option>
-                    {userOrgs.map((orgId) => (
-                      <option key={orgId} value={orgId}>
-                        {formatAddress(orgId)} {orgId.toLowerCase() === address?.toLowerCase() && '(Your Org)'}
-                      </option>
-                    ))}
-                  </select>
+                  <div className="relative">
+                    <select
+                      id="organization"
+                      value={selectedOrgId}
+                      onChange={(e) => setSelectedOrgId(e.target.value)}
+                      className="w-full px-6 py-4 border border-gray-300 rounded-xl focus:ring-2 focus:ring-gray-500 focus:border-transparent outline-none transition-all text-lg appearance-none"
+                      disabled={isSending || isConfirming}
+                      required
+                    >
+                      <option value="">Choose an organization...</option>
+                      {userOrgs.map((orgId) => (
+                        <option key={orgId} value={orgId}>
+                          {allOrgMetadata[orgId] ? `${allOrgMetadata[orgId].name} (${formatAddress(orgId)})` : formatAddress(orgId)} {orgId.toLowerCase() === address?.toLowerCase() && '(Your Org)'}
+                        </option>
+                      ))}
+                    </select>
+                    
+                    {/* Custom dropdown with icons */}
+                    <div className="absolute inset-y-0 right-0 flex items-center pr-4 pointer-events-none">
+                      <svg className="w-5 h-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
+                      </svg>
+                    </div>
+                  </div>
+                  
+                  {/* Organization preview with icon */}
+                  {selectedOrgId && allOrgMetadata[selectedOrgId] && (
+                    <div className="mt-4 p-4 bg-gray-50 rounded-lg border border-gray-200">
+                      <div className="flex items-center space-x-3">
+                        {allOrgMetadata[selectedOrgId].logoIpfsCid ? (
+                          <img
+                            src={`https://www.thirdstorage.cloud/api/gateway/${allOrgMetadata[selectedOrgId].logoIpfsCid}`}
+                            alt={`${allOrgMetadata[selectedOrgId].name} logo`}
+                            className="w-10 h-10 rounded-lg object-cover border border-gray-200"
+                            onError={(e) => {
+                              e.target.style.display = 'none';
+                              e.target.nextSibling.style.display = 'flex';
+                            }}
+                          />
+                        ) : null}
+                        <div className={`w-10 h-10 bg-[#83785f] rounded-lg flex items-center justify-center ${allOrgMetadata[selectedOrgId].logoIpfsCid ? 'hidden' : 'flex'}`}>
+                          <span className="text-white text-sm font-bold">
+                            {allOrgMetadata[selectedOrgId].name?.charAt(0).toUpperCase()}
+                          </span>
+                        </div>
+                        <div>
+                          <div className="font-semibold text-gray-800">
+                            {allOrgMetadata[selectedOrgId].name}
+                          </div>
+                          <div className="text-sm text-gray-500 font-mono">
+                            {formatAddress(selectedOrgId)}
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                  )}
                 </div>
 
                 <div className="glass-card-solid p-8">
                   <label htmlFor="receiver" className="block text-lg font-semibold text-gray-800 mb-4">
-                    Receiver Wallet Address *
+                    Who is the feedback for? *
                   </label>
                   <input
                     type="text"

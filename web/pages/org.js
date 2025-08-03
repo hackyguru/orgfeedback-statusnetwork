@@ -227,7 +227,7 @@ export default function OrgPage() {
     e.preventDefault();
     
     if (!orgLogo.trim()) {
-      toast.error('Please enter an IPFS CID for the logo');
+      toast.error('Please enter an Codex CID for the logo');
       return;
     }
 
@@ -258,13 +258,18 @@ export default function OrgPage() {
         <Sidebar />
         <div className="flex-1 p-8 lg:p-12">
           <div className="w-full">
+            <h1 className="text-4xl font-bold text-gray-800 mb-2">
+              Organization Management
+            </h1>
+            <p className="text-gray-600 text-lg mb-8">
+              Create and manage your organizations
+            </p>
             <div className="glass-card-solid p-8 text-center">
-              <h1 className="text-4xl font-bold text-gray-800 mb-2">
-                Organization Management
-              </h1>
-              <p className="text-gray-600 text-lg">
-                Create and manage your organizations
-              </p>
+              <div className="animate-pulse">
+                <div className="h-8 bg-gray-300 rounded w-1/2 mb-4 mx-auto"></div>
+                <div className="h-4 bg-gray-300 rounded w-full mb-2"></div>
+                <div className="h-4 bg-gray-300 rounded w-3/4 mx-auto"></div>
+              </div>
             </div>
           </div>
         </div>
@@ -344,18 +349,40 @@ export default function OrgPage() {
             </h2>
             
             <div className="mb-6">
-              <h3 className="text-lg font-semibold text-gray-800 mb-2">
-                {ownedOrg.name}
-              </h3>
-              <p className="text-gray-700 leading-relaxed mb-4">
-                {ownedOrg.description}
-              </p>
+              {/* Organization Logo */}
+              <div className="flex items-center space-x-4 mb-4">
+                {ownedOrg.logoIpfsCid ? (
+                  <img
+                    src={`https://www.thirdstorage.cloud/api/gateway/${ownedOrg.logoIpfsCid}`}
+                    alt={`${ownedOrg.name} logo`}
+                    className="w-16 h-16 rounded-lg object-cover border border-gray-200"
+                    onError={(e) => {
+                      e.target.style.display = 'none';
+                      e.target.nextSibling.style.display = 'flex';
+                    }}
+                  />
+                ) : null}
+                <div className={`w-16 h-16 bg-[#83785f] rounded-lg flex items-center justify-center ${ownedOrg.logoIpfsCid ? 'hidden' : 'flex'}`}>
+                  <span className="text-white text-2xl font-bold">
+                    {ownedOrg.name.charAt(0).toUpperCase()}
+                  </span>
+                </div>
+                <div>
+                  <h3 className="text-lg font-semibold text-gray-800 mb-1">
+                    {ownedOrg.name}
+                  </h3>
+                  <p className="text-gray-700 leading-relaxed">
+                    {ownedOrg.description}
+                  </p>
+                </div>
+              </div>
+              
               <div className="text-sm text-zinc-500 font-mono mb-4">
                 Organization ID: {address}
               </div>
               {ownedOrg.logoIpfsCid && (
                 <div className="text-sm text-gray-600">
-                  Logo IPFS CID: {ownedOrg.logoIpfsCid}
+                  Logo Codex CID: {ownedOrg.logoIpfsCid}
                 </div>
               )}
             </div>
@@ -370,7 +397,7 @@ export default function OrgPage() {
                   type="text"
                   value={orgLogo}
                   onChange={(e) => setOrgLogo(e.target.value)}
-                  placeholder="Enter IPFS CID for logo (e.g., QmXxX...)"
+                  placeholder="Enter Codex CID for logo (e.g., QmXxX...)"
                   className="flex-1 px-3 py-2 bg-white border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#cfc7b5] focus:border-transparent outline-none transition-colors text-sm"
                   disabled={isUpdatingLogo || isConfirming}
                 />
@@ -383,7 +410,7 @@ export default function OrgPage() {
                 </button>
               </form>
               <p className="text-xs text-gray-500 mt-2">
-                Upload your logo to IPFS and paste the CID here. Logo is optional and can be updated anytime.
+                Upload your logo to Codex and paste the CID here. Logo is optional and can be updated anytime.
               </p>
             </div>
 

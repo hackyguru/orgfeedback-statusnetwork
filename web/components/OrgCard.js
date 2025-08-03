@@ -58,7 +58,7 @@ const OrgCard = ({ orgId, isOwner = false }) => {
         <div className="flex items-start space-x-4 mb-3">
           {orgData.logoIpfsCid ? (
             <img
-              src={`https://ipfs.io/ipfs/${orgData.logoIpfsCid}`}
+              src={`https://thirdstorage.cloud/gateway/${orgData.logoIpfsCid}`}
               alt={`${orgData.name} logo`}
               className="w-12 h-12 rounded-lg object-cover border border-gray-200"
               onError={(e) => {

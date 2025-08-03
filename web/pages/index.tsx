@@ -1,5 +1,5 @@
 import { useAccount, useReadContract } from 'wagmi';
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useCallback } from 'react';
 import Sidebar from '@/components/Sidebar';
 import OrgCard from '@/components/OrgCard';
 import { CONTRACT_ADDRESS } from '@/lib/config';
@@ -127,6 +127,63 @@ export default function Home() {
     args: address ? [address] : undefined,
   });
 
+  // Get current organization metadata
+  const { data: currentOrgMetadata } = useReadContract({
+    address: CONTRACT_ADDRESS,
+    abi: ORG_FEEDBACK_ABI,
+    functionName: 'getOrgMetadata',
+    args: userOrgs[currentOrgIndex] ? [userOrgs[currentOrgIndex]] : undefined,
+  });
+
+  // Get current organization members count - using a different approach since getOrgMembers requires owner/moderator permissions
+  const [memberCount, setMemberCount] = useState<number | null>(null);
+
+  // Function to count members by checking each known address
+  const countMembers = useCallback(async () => {
+    if (!userOrgs[currentOrgIndex]) return;
+    
+    try {
+      const { ethers } = await import('ethers');
+      const provider = new ethers.BrowserProvider(window.ethereum);
+      const signer = await provider.getSigner();
+      const contract = new ethers.Contract(CONTRACT_ADDRESS, ORG_FEEDBACK_ABI, signer);
+      
+      // Get organization metadata to find the owner
+      const orgMetadata = await contract.getOrgMetadata(userOrgs[currentOrgIndex]);
+      const owner = orgMetadata[3];
+      
+      // Check if the current user is the owner or moderator
+      const isOwner = address?.toLowerCase() === owner.toLowerCase();
+      const isModerator = await contract.isModerator(userOrgs[currentOrgIndex], address);
+      
+      if (isOwner || isModerator) {
+        // If user is owner/moderator, they can call getOrgMembers
+        const members = await contract.getOrgMembers(userOrgs[currentOrgIndex]);
+        setMemberCount(members.length);
+      } else {
+        // If user is just a member, we can't get the full list, so show a placeholder
+        setMemberCount(null);
+      }
+    } catch (error) {
+      console.log('Error counting members:', error);
+      setMemberCount(null);
+    }
+  }, [userOrgs, currentOrgIndex, address]);
+
+  // Count members when organization changes
+  useEffect(() => {
+    if (userOrgs[currentOrgIndex]) {
+      countMembers();
+    }
+  }, [countMembers]);
+
+  // Get total feedback count
+  const { data: totalFeedbackCount } = useReadContract({
+    address: CONTRACT_ADDRESS,
+    abi: ORG_FEEDBACK_ABI,
+    functionName: 'getFeedbackCount',
+  });
+
   useEffect(() => {
     if (organizations && Array.isArray(organizations)) {
       setUserOrgs(organizations as string[]);
@@ -213,7 +270,7 @@ export default function Home() {
           <div className="flex items-center justify-between mb-8">
             <div>
               <h1 className="text-4xl font-bold text-gray-800 mb-2">
-                Dashboard
+                Hi, ready for some feedback?
               </h1>
               <p className="text-gray-600 text-lg">
                 Manage your organizations and track feedback seamlessly
@@ -240,15 +297,15 @@ export default function Home() {
           {/* Enhanced Stats Grid */}
           <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
             <div className="bg-[#cfc7b5] p-8 hover:shadow-lg transition-all group rounded-2xl">
-              <div className="flex items-stretch justify-between">
+              <div className="flex items-stretch justify-between min-h-[200px]">
                                 {/* Left side - Stats */}
-                <div className="flex-1 relative flex flex-col">
+                <div className="flex-1 relative flex flex-col min-h-[200px]">
                   {/* Background count number */}
                   <div className="absolute left-1/2 top-1/2 transform -translate-x-1/2 -translate-y-1/2 text-[18rem] font-bold text-[#f8f6f0] opacity-30 pointer-events-none">
                     {userOrgs.length}
                   </div>
                   
-                  <div className="relative z-10 flex-1 flex flex-col">
+                  <div className="relative z-10 flex-1 flex flex-col h-full">
                     {/* Icon at top */}
                     <div className="flex items-center mb-4">
                       <div className="p-3 rounded-xl bg-[#f8f6f0]   transition-all">
@@ -263,16 +320,16 @@ export default function Home() {
                     <div className="mt-auto">
                       {/* Text content */}
                       <div className="text-gray-700 font-semibold text-lg mb-3">
-                        {userOrgs.length} Organizations
+                        My Organizations
                       </div>
                       
                       {/* Button at absolute bottom */}
                       <div className="flex items-center text-sm">
                         <Link
-                          href="/org"
+                          href="/feedback/new"
                           className="px-4 py-2 bg-[#83785f] text-[#f8f6f0] rounded-lg font-medium hover:bg-[#877f6c] transition-colors"
                         >
-                          Manage Organizations
+                          Send Feedback
                         </Link>
                       </div>
                     </div>
@@ -282,12 +339,34 @@ export default function Home() {
                 {/* Right side - Organization Display */}
                 {userOrgs.length > 0 && (
                   <div className="ml-8 p-6 bg-white rounded-lg border border-gray-200 shadow-sm w-96">
-                    <div className="text-xl font-semibold text-[#83785f] mb-1">
-                      Status
+                    {/* Organization Logo and Name */}
+                    <div className="flex items-center space-x-3 mb-4">
+                      {currentOrgMetadata && Array.isArray(currentOrgMetadata) && currentOrgMetadata[2] ? (
+                        <img
+                          src={`https://www.thirdstorage.cloud/api/gateway/${currentOrgMetadata[2]}`}
+                          alt={`${currentOrgMetadata[0]} logo`}
+                          className="w-12 h-12 rounded-lg object-cover border border-gray-200"
+                          onError={(e: any) => {
+                            e.target.style.display = 'none';
+                            e.target.nextSibling.style.display = 'flex';
+                          }}
+                        />
+                      ) : null}
+                      <div className={`w-12 h-12 bg-[#83785f] rounded-lg flex items-center justify-center ${currentOrgMetadata && Array.isArray(currentOrgMetadata) && currentOrgMetadata[2] ? 'hidden' : 'flex'}`}>
+                        <span className="text-white text-lg font-bold">
+                          {currentOrgMetadata && Array.isArray(currentOrgMetadata) ? currentOrgMetadata[0]?.charAt(0).toUpperCase() : 'O'}
+                        </span>
+                      </div>
+                      <div>
+                        <div className="text-xl font-semibold text-[#83785f] mb-1">
+                          {currentOrgMetadata && Array.isArray(currentOrgMetadata) ? currentOrgMetadata[0] : 'Organization'}
+                        </div>
+                        <div className="text-[#83785f] bg-[#f8f6f0] p-2 rounded-lg text-xs">
+                          {userOrgs[currentOrgIndex]?.toLowerCase() === address?.toLowerCase() ? 'You own this' : 'Member'}
+                        </div>
+                      </div>
                     </div>
-                    <div className="text-[#83785f] bg-[#f8f6f0] p-2 rounded-lg text-xs mb-3">
-                      {userOrgs[currentOrgIndex]?.toLowerCase() === address?.toLowerCase() ? 'You own this' : 'Member'}
-                    </div>
+                    
                     <div className="text-sm text-gray-600 mb-2">
                       Owner
                     </div>
@@ -325,14 +404,10 @@ export default function Home() {
               </div>
             </div>
             
-            <div className="bg-[#83785f] p-8 hover:shadow-lg transition-all group rounded-2xl min-h-[300px]">
+            <div className="bg-[#83785f] p-8 hover:shadow-lg transition-all group rounded-2xl min-h-[200px]">
               <div className="flex items-stretch justify-between h-full">
                 {/* Left side - Stats */}
                 <div className="flex-1 relative flex flex-col h-full">
-                  {/* Background count number */}
-                  <div className="absolute left-1/2 top-1/2 transform -translate-x-1/2 -translate-y-1/2 text-[18rem] font-bold text-[#cfc7b5] opacity-30 pointer-events-none">
-                    {userOrgs.filter((orgId: string) => orgId.toLowerCase() === address?.toLowerCase()).length}
-                  </div>
                   
                   <div className="relative z-10 flex-1 flex flex-col h-full">
                     {/* Icon at top */}
@@ -349,7 +424,7 @@ export default function Home() {
                     <div className="mt-auto">
                       {/* Text content */}
                       <div className="text-[#f8f6f0] font-semibold text-lg mb-3">
-                        {userOrgs.filter((orgId: string) => orgId.toLowerCase() === address?.toLowerCase()).length} Organizations Owned
+                        Admin
                       </div>
                       
                       {/* Button at absolute bottom */}
@@ -358,7 +433,7 @@ export default function Home() {
                           href="/org"
                           className="px-4 py-2 bg-[#cfc7b5] text-[#83785f] rounded-lg font-medium hover:bg-[#f8f6f0] transition-colors"
                         >
-                          Manage my team
+                          Manage team
                         </Link>
                       </div>
                     </div>
@@ -373,7 +448,10 @@ export default function Home() {
                       Members in the organization
                     </div>
                     <div className="text-[#83785f] text-sm font-bold">
-                      3
+                      {userOrgs.length > 0 && memberCount !== null 
+                        ? memberCount 
+                        : '-'
+                      }
                     </div>
                   </div>
                   
@@ -383,12 +461,15 @@ export default function Home() {
                       Feedback exchanged in the organization
                     </div>
                     <div className="text-[#83785f] text-sm font-bold">
-                      12
+                      {userOrgs.length > 0 && totalFeedbackCount 
+                        ? totalFeedbackCount.toString()
+                        : '-'
+                      }
                     </div>
                   </div>
                   
                   {/* ENS Card */}
-                  <div className="bg-white rounded-lg p-1 border border-gray-200 shadow-sm">
+                  <div className="bg-white rounded-lg p-1 border border-gray-200 shadow-sm opacity-50">
                     <div className="text-[#83785f] font-semibold text-xs mb-1">
                       ENS
                     </div>

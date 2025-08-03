@@ -804,7 +804,7 @@ export default function OrgDetailPage() {
               <div className="flex items-start space-x-6">
                 {orgData.logoIpfsCid ? (
                   <img
-                    src={`https://ipfs.io/ipfs/${orgData.logoIpfsCid}`}
+                    src={`https://thirdstorage.cloud/gateway/${orgData.logoIpfsCid}`}
                     alt={`${orgData.name} logo`}
                     className="w-20 h-20 rounded-xl object-cover border border-gray-200 shadow-sm"
                     onError={(e) => {

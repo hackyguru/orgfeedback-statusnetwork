@@ -17,6 +17,7 @@
     "hardhat": "^2.26.1"
   },
   "dependencies": {
+    "framer-motion": "^12.23.12",
     "lucide-react": "^0.536.0"
   }
 }
