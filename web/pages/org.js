@@ -264,11 +264,43 @@ export default function OrgPage() {
             <p className="text-gray-600 text-lg mb-8">
               Create and manage your organizations
             </p>
-            <div className="glass-card-solid p-8 text-center">
+            <div className="glass-card-solid p-8 mb-8">
               <div className="animate-pulse">
-                <div className="h-8 bg-gray-300 rounded w-1/2 mb-4 mx-auto"></div>
-                <div className="h-4 bg-gray-300 rounded w-full mb-2"></div>
-                <div className="h-4 bg-gray-300 rounded w-3/4 mx-auto"></div>
+                {/* Title skeleton */}
+                <div className="h-8 bg-gray-300 rounded w-1/3 mb-6"></div>
+                
+                <div className="mb-6">
+                  {/* Organization Logo skeleton */}
+                  <div className="flex items-center space-x-4 mb-4">
+                    <div className="w-16 h-16 bg-gray-300 rounded-lg"></div>
+                    <div>
+                      <div className="h-6 bg-gray-300 rounded w-32 mb-1"></div>
+                      <div className="h-4 bg-gray-300 rounded w-48"></div>
+                    </div>
+                  </div>
+                  
+                  {/* Organization ID skeleton */}
+                  <div className="h-4 bg-gray-300 rounded w-64 mb-4"></div>
+                  
+                  {/* Optional CID skeleton */}
+                  <div className="h-4 bg-gray-300 rounded w-48"></div>
+                </div>
+
+                {/* Logo Update Section skeleton */}
+                <div className="mb-6 p-4 bg-gray-50 rounded-lg">
+                  <div className="h-4 bg-gray-300 rounded w-40 mb-3"></div>
+                  <div className="flex gap-3">
+                    <div className="flex-1 h-10 bg-gray-300 rounded-lg"></div>
+                    <div className="w-28 h-10 bg-gray-300 rounded-lg"></div>
+                  </div>
+                  <div className="h-3 bg-gray-300 rounded w-3/4 mt-2"></div>
+                </div>
+
+                {/* Buttons skeleton */}
+                <div className="flex flex-col sm:flex-row gap-4">
+                  <div className="h-12 bg-gray-300 rounded-lg flex-1"></div>
+                  <div className="h-12 bg-gray-300 rounded-lg flex-1"></div>
+                </div>
               </div>
             </div>
           </div>
@@ -290,11 +322,43 @@ export default function OrgPage() {
             <p className="text-gray-600 text-lg mb-8">
               Create and manage your organizations
             </p>
-            <div className="glass-card-solid p-8 text-center">
+            <div className="glass-card-solid p-8 mb-8">
               <div className="animate-pulse">
-                <div className="h-8 bg-gray-300 rounded w-1/2 mb-4 mx-auto"></div>
-                <div className="h-4 bg-gray-300 rounded w-full mb-2"></div>
-                <div className="h-4 bg-gray-300 rounded w-3/4 mx-auto"></div>
+                {/* Title skeleton */}
+                <div className="h-8 bg-gray-300 rounded w-1/3 mb-6"></div>
+                
+                <div className="mb-6">
+                  {/* Organization Logo skeleton */}
+                  <div className="flex items-center space-x-4 mb-4">
+                    <div className="w-16 h-16 bg-gray-300 rounded-lg"></div>
+                    <div>
+                      <div className="h-6 bg-gray-300 rounded w-32 mb-1"></div>
+                      <div className="h-4 bg-gray-300 rounded w-48"></div>
+                    </div>
+                  </div>
+                  
+                  {/* Organization ID skeleton */}
+                  <div className="h-4 bg-gray-300 rounded w-64 mb-4"></div>
+                  
+                  {/* Optional CID skeleton */}
+                  <div className="h-4 bg-gray-300 rounded w-48"></div>
+                </div>
+
+                {/* Logo Update Section skeleton */}
+                <div className="mb-6 p-4 bg-gray-50 rounded-lg">
+                  <div className="h-4 bg-gray-300 rounded w-40 mb-3"></div>
+                  <div className="flex gap-3">
+                    <div className="flex-1 h-10 bg-gray-300 rounded-lg"></div>
+                    <div className="w-28 h-10 bg-gray-300 rounded-lg"></div>
+                  </div>
+                  <div className="h-3 bg-gray-300 rounded w-3/4 mt-2"></div>
+                </div>
+
+                {/* Buttons skeleton */}
+                <div className="flex flex-col sm:flex-row gap-4">
+                  <div className="h-12 bg-gray-300 rounded-lg flex-1"></div>
+                  <div className="h-12 bg-gray-300 rounded-lg flex-1"></div>
+                </div>
               </div>
             </div>
           </div>
@@ -315,11 +379,43 @@ export default function OrgPage() {
             <p className="text-gray-600 text-lg mb-8">
               Create and manage your organizations
             </p>
-            <div className="glass-card-solid p-8 text-center">
+            <div className="glass-card-solid p-8 mb-8">
               <div className="animate-pulse">
-                <div className="h-8 bg-gray-300 rounded w-1/2 mb-4 mx-auto"></div>
-                <div className="h-4 bg-gray-300 rounded w-full mb-2"></div>
-                <div className="h-4 bg-gray-300 rounded w-3/4 mx-auto"></div>
+                {/* Title skeleton */}
+                <div className="h-8 bg-gray-300 rounded w-1/3 mb-6"></div>
+                
+                <div className="mb-6">
+                  {/* Organization Logo skeleton */}
+                  <div className="flex items-center space-x-4 mb-4">
+                    <div className="w-16 h-16 bg-gray-300 rounded-lg"></div>
+                    <div>
+                      <div className="h-6 bg-gray-300 rounded w-32 mb-1"></div>
+                      <div className="h-4 bg-gray-300 rounded w-48"></div>
+                    </div>
+                  </div>
+                  
+                  {/* Organization ID skeleton */}
+                  <div className="h-4 bg-gray-300 rounded w-64 mb-4"></div>
+                  
+                  {/* Optional CID skeleton */}
+                  <div className="h-4 bg-gray-300 rounded w-48"></div>
+                </div>
+
+                {/* Logo Update Section skeleton */}
+                <div className="mb-6 p-4 bg-gray-50 rounded-lg">
+                  <div className="h-4 bg-gray-300 rounded w-40 mb-3"></div>
+                  <div className="flex gap-3">
+                    <div className="flex-1 h-10 bg-gray-300 rounded-lg"></div>
+                    <div className="w-28 h-10 bg-gray-300 rounded-lg"></div>
+                  </div>
+                  <div className="h-3 bg-gray-300 rounded w-3/4 mt-2"></div>
+                </div>
+
+                {/* Buttons skeleton */}
+                <div className="flex flex-col sm:flex-row gap-4">
+                  <div className="h-12 bg-gray-300 rounded-lg flex-1"></div>
+                  <div className="h-12 bg-gray-300 rounded-lg flex-1"></div>
+                </div>
               </div>
             </div>
           </div>
@@ -398,23 +494,30 @@ export default function OrgPage() {
                   value={orgLogo}
                   onChange={(e) => setOrgLogo(e.target.value)}
                   placeholder="Enter Codex CID for logo (e.g., QmXxX...)"
-                  className="flex-1 px-3 py-2 bg-white border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#cfc7b5] focus:border-transparent outline-none transition-colors text-sm"
+                  className="flex-1 px-4 py-3 bg-white border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#cfc7b5] focus:border-transparent outline-none transition-colors text-gray-800 placeholder-gray-500"
                   disabled={isUpdatingLogo || isConfirming}
                 />
                 <button
                   type="submit"
                   disabled={isUpdatingLogo || isConfirming || !orgLogo.trim()}
-                  className="px-4 py-2 bg-[#83785f] text-white rounded-lg font-medium hover:bg-[#877f6c] transition-colors disabled:opacity-50 disabled:cursor-not-allowed text-sm"
+                  className="px-6 py-3 bg-[#83785f] text-white rounded-lg font-semibold hover:bg-[#877f6c] transition-all transform hover:scale-105 disabled:opacity-50 disabled:cursor-not-allowed disabled:transform-none"
                 >
-                  {isUpdatingLogo || isConfirming ? 'Updating...' : 'Update Logo'}
+                  {isUpdatingLogo || isConfirming ? (
+                    <div className="flex items-center justify-center space-x-2">
+                      <div className="animate-spin h-4 w-4 border-2 border-white border-t-transparent rounded-full"></div>
+                      <span>Updating...</span>
+                    </div>
+                  ) : (
+                    'Update Logo'
+                  )}
                 </button>
               </form>
-              <p className="text-xs text-gray-500 mt-2">
+              <p className="text-xs text-gray-500 mt-3">
                 Upload your logo to Codex and paste the CID here. Logo is optional and can be updated anytime.
               </p>
             </div>
 
-            <div className="flex flex-col sm:flex-row gap-4 jus">
+            <div className="flex flex-col sm:flex-row gap-4">
               <button
                 onClick={() => router.push(`/org/${address}`)}
                 className="px-6 py-3 rounded-lg font-semibold hover:opacity-90 transition-all transform hover:scale-105"
@@ -424,7 +527,7 @@ export default function OrgPage() {
               </button>
               <button
                 onClick={() => router.push('/feedback/new')}
-                className="px-6 py-3 rounded-lg font-medium hover:opacity-90 transition-all transform hover:scale-105"
+                className="px-6 py-3 rounded-lg font-semibold hover:opacity-90 transition-all transform hover:scale-105"
                 style={{ background: '#cfc7b5', color: '#22262b' }}
               >
                 Send Feedback
@@ -433,7 +536,7 @@ export default function OrgPage() {
           </div>
         ) : (
           // User doesn't own an organization yet
-          <div className="glass-card-solid p-8">
+          <div className="glass-card-solid p-8 mb-8">
             <h2 className="text-2xl font-bold text-gray-800 mb-6">
               Create Your Organization
             </h2>
@@ -454,7 +557,7 @@ export default function OrgPage() {
                   value={orgName}
                   onChange={(e) => setOrgName(e.target.value)}
                   placeholder="Enter your organization name"
-                  className="w-full px-4 py-3 bg-gray-100 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#cfc7b5] focus:border-transparent outline-none transition-colors text-gray-800 placeholder-gray-500"
+                  className="w-full px-4 py-3 bg-white border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#cfc7b5] focus:border-transparent outline-none transition-colors text-gray-800 placeholder-gray-500"
                   disabled={isCreating || isConfirming}
                 />
               </div>
@@ -469,13 +572,13 @@ export default function OrgPage() {
                   onChange={(e) => setOrgDescription(e.target.value)}
                   placeholder="Describe your organization and its purpose"
                   rows={4}
-                  className="w-full px-4 py-3 bg-gray-100 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#cfc7b5] focus:border-transparent outline-none transition-colors resize-none text-gray-800 placeholder-gray-500"
+                  className="w-full px-4 py-3 bg-white border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#cfc7b5] focus:border-transparent outline-none transition-colors resize-none text-gray-800 placeholder-gray-500"
                   disabled={isCreating || isConfirming}
                 />
               </div>
 
-              <div className="glass-card p-4">
-                <h4 className="font-medium text-gray-800 mb-2">
+              <div className="p-4 bg-gray-50 rounded-lg">
+                <h4 className="text-sm font-medium text-gray-800 mb-3">
                   Important Notes:
                 </h4>
                 <ul className="text-sm text-gray-700 space-y-1">

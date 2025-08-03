@@ -17,6 +17,7 @@ import {
   CheckCircle,
   ArrowLeft
 } from 'lucide-react';
+import { motion, AnimatePresence } from 'framer-motion';
 
 export default function NewFeedbackPage() {
   const { address, isConnected } = useAccount();
@@ -342,10 +343,14 @@ export default function NewFeedbackPage() {
                       </svg>
                     </div>
                   </div>
-                  
-                  {/* Organization preview with icon */}
+                  {/* Organization preview with icon - moved outside the dropdown */}
                   {selectedOrgId && allOrgMetadata[selectedOrgId] && (
-                    <div className="mt-4 p-4 bg-gray-50 rounded-lg border border-gray-200">
+                    <motion.div 
+                      className="mt-4 p-4 bg-gray-50 rounded-lg border border-gray-200"
+                      initial={{ opacity: 0, y: 20 }}
+                      animate={{ opacity: 1, y: 0 }}
+                      transition={{ duration: 0.3 }}
+                    >
                       <div className="flex items-center space-x-3">
                         {allOrgMetadata[selectedOrgId].logoIpfsCid ? (
                           <img
@@ -372,7 +377,7 @@ export default function NewFeedbackPage() {
                           </div>
                         </div>
                       </div>
-                    </div>
+                    </motion.div>
                   )}
                 </div>
 
@@ -575,7 +580,7 @@ export default function NewFeedbackPage() {
           <div className="mb-12">
             <div className="flex space-x-4">
               {steps.map((step) => (
-                <button
+                <motion.button
                   key={step.id}
                   onClick={() => goToStep(step.id)}
                   className={`
@@ -591,6 +596,11 @@ export default function NewFeedbackPage() {
                     borderColor: '#22262b',
                     color: '#22262b'
                   }}
+                  whileHover={{ scale: 1.02 }}
+                  whileTap={{ scale: 0.98 }}
+                  initial={{ opacity: 0, y: 20 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{ duration: 0.3, delay: step.id * 0.1 }}
                 >
                   {/* Step number gradient background */}
                   <div 
@@ -620,39 +630,59 @@ export default function NewFeedbackPage() {
                       </div>
                     </div>
                   </div>
-                </button>
+                </motion.button>
               ))}
             </div>
           </div>
 
           {/* Step Content */}
           <div className="mb-12">
-            {renderStepContent()}
+            <AnimatePresence mode="wait">
+              <motion.div
+                key={currentStep}
+                initial={{ opacity: 0, x: 20 }}
+                animate={{ opacity: 1, x: 0 }}
+                exit={{ opacity: 0, x: -20 }}
+                transition={{ duration: 0.3 }}
+              >
+                {renderStepContent()}
+              </motion.div>
+            </AnimatePresence>
           </div>
 
           {/* Navigation Buttons */}
           {userOrgs.length > 0 && (
             <div className="flex justify-between items-center">
-              <button
+              <motion.button
                 onClick={prevStep}
                 disabled={currentStep === 1}
                 className="flex items-center space-x-2 px-8 py-4 rounded-xl font-semibold border-2 border-gray-300 text-gray-600 hover:border-gray-400 hover:text-gray-700 transition-all disabled:opacity-50 disabled:cursor-not-allowed"
+                whileHover={{ scale: 1.05 }}
+                whileTap={{ scale: 0.95 }}
+                initial={{ opacity: 0, x: -20 }}
+                animate={{ opacity: 1, x: 0 }}
+                transition={{ duration: 0.3 }}
               >
                 <ChevronLeft className="w-5 h-5" />
                 <span>Previous</span>
-              </button>
+              </motion.button>
 
               {currentStep < totalSteps ? (
-                <button
+                <motion.button
                   onClick={nextStep}
                   className="flex items-center space-x-2 px-8 py-4 rounded-xl font-semibold hover:shadow-lg transition-all transform hover:scale-105 shadow-md"
                   style={{ background: '#22262b', color: '#ffffff' }}
+                  whileHover={{ scale: 1.05 }}
+                  whileTap={{ scale: 0.95 }}
+                  initial={{ opacity: 0, x: 20 }}
+                  animate={{ opacity: 1, x: 0 }}
+                  transition={{ duration: 0.3 }}
                 >
                   <span>Next</span>
                   <ChevronRight className="w-5 h-5" />
-                </button>
+                </motion.button>
               ) : (
-                <button
+                <motion.button
                   onClick={handleSendFeedback}
                   disabled={
                     isSending || 
@@ -661,6 +691,11 @@ export default function NewFeedbackPage() {
                   }
                   className="flex items-center space-x-3 px-10 py-4 rounded-xl font-semibold hover:shadow-lg transition-all transform hover:scale-105 shadow-md disabled:opacity-50 disabled:cursor-not-allowed disabled:transform-none"
                   style={{ background: '#22262b', color: '#ffffff' }}
+                  whileHover={{ scale: 1.05 }}
+                  whileTap={{ scale: 0.95 }}
+                  initial={{ opacity: 0, y: 20 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{ duration: 0.3 }}
                 >
                   {isSending || isConfirming ? (
                     <>
@@ -675,7 +710,7 @@ export default function NewFeedbackPage() {
                       <span>Send Feedback</span>
                     </>
                   )}
-                </button>
+                </motion.button>
               )}
             </div>
           )}
