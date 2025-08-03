@@ -6,6 +6,14 @@ import { CONTRACT_ADDRESS } from '@/lib/config';
 import { ORG_FEEDBACK_ABI } from '@/lib/abi';
 import toast from 'react-hot-toast';
 import Link from 'next/link';
+import { MoreHorizontal, UserMinus, UserPlus, Shield, ShieldOff } from 'lucide-react';
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+  DropdownMenuSeparator,
+} from '@/components/ui/dropdown-menu';
 
 // Utility function to parse smart contract error messages
 const parseContractError = (error) => {
@@ -117,15 +125,17 @@ export default function OrgDetailPage() {
   const { orgId } = router.query;
   const { address, isConnected } = useAccount();
   const [newMemberAddress, setNewMemberAddress] = useState('');
-  const [removeMemberAddress, setRemoveMemberAddress] = useState('');
-  const [newModeratorAddress, setNewModeratorAddress] = useState('');
-  const [removeModeratorAddress, setRemoveModeratorAddress] = useState('');
   const [orgData, setOrgData] = useState(null);
   const [isAddingMember, setIsAddingMember] = useState(false);
-  const [isRemovingMember, setIsRemovingMember] = useState(false);
-  const [isAddingModerator, setIsAddingModerator] = useState(false);
-  const [isRemovingModerator, setIsRemovingModerator] = useState(false);
   const [isHydrated, setIsHydrated] = useState(false);
+  
+  // Logo update state
+  const [orgLogo, setOrgLogo] = useState('');
+  const [isUpdatingLogo, setIsUpdatingLogo] = useState(false);
+  
+  // Dropdown action state
+  const [selectedMemberForAction, setSelectedMemberForAction] = useState('');
+  const [isPerformingAction, setIsPerformingAction] = useState(false);
 
   const { writeContract, data: hash, error, isError, isPending } = useWriteContract();
   
@@ -352,13 +362,7 @@ export default function OrgDetailPage() {
   useEffect(() => {
     if (isConfirmed) {
       setIsAddingMember(false);
-      setIsRemovingMember(false);
-      setIsAddingModerator(false);
-      setIsRemovingModerator(false);
       setNewMemberAddress('');
-      setRemoveMemberAddress('');
-      setNewModeratorAddress('');
-      setRemoveModeratorAddress('');
       toast.success('Operation completed successfully!');
       // Refetch member list
       refetchMembers();
@@ -375,9 +379,6 @@ export default function OrgDetailPage() {
       console.log('🔍 Error keys:', Object.keys(error || {}));
       
       setIsAddingMember(false);
-      setIsRemovingMember(false);
-      setIsAddingModerator(false);
-      setIsRemovingModerator(false);
       
       const errorMessage = parseContractError(error || { message: 'Transaction failed' });
       console.log('🔍 Parsed error message:', errorMessage);
@@ -395,9 +396,6 @@ export default function OrgDetailPage() {
       console.log('🔍 Receipt error constructor:', receiptError?.constructor?.name);
       
       setIsAddingMember(false);
-      setIsRemovingMember(false);
-      setIsAddingModerator(false);
-      setIsRemovingModerator(false);
       
       const errorMessage = parseContractError(receiptError);
       toast.error(errorMessage);
@@ -423,9 +421,6 @@ export default function OrgDetailPage() {
       )) {
         event.preventDefault(); // Prevent default error handling
         setIsAddingMember(false);
-        setIsRemovingMember(false);
-        setIsAddingModerator(false);
-        setIsRemovingModerator(false);
         
         const errorMessage = parseContractError(event.error);
         toast.error(errorMessage);
@@ -444,9 +439,6 @@ export default function OrgDetailPage() {
       )) {
         event.preventDefault(); // Prevent default error handling
         setIsAddingMember(false);
-        setIsRemovingMember(false);
-        setIsAddingModerator(false);
-        setIsRemovingModerator(false);
         
         const errorMessage = parseContractError(event.reason);
         toast.error(errorMessage);
@@ -461,9 +453,6 @@ export default function OrgDetailPage() {
       if (errorMessage.includes('ContractFunctionExecutionError') || errorMessage.includes('Internal JSON-RPC error')) {
         console.log('🔍 Caught error via console.error override:', errorMessage);
         setIsAddingMember(false);
-        setIsRemovingMember(false);
-        setIsAddingModerator(false);
-        setIsRemovingModerator(false);
         
         toast.error('Transaction failed - the address may already be a member or you may not have permission');
         return; // Don't log the original error
@@ -480,6 +469,31 @@ export default function OrgDetailPage() {
       console.error = originalConsoleError; // Restore original console.error
     };
   }, []);
+
+  // Handle transaction success
+  useEffect(() => {
+    if (isConfirmed) {
+      if (isAddingMember) {
+        setIsAddingMember(false);
+        toast.success('Member added successfully!');
+        setNewMemberAddress('');
+        // Refresh the page to show the new member
+        window.location.reload();
+      } else if (isUpdatingLogo) {
+        setIsUpdatingLogo(false);
+        toast.success('Logo updated successfully!');
+        setOrgLogo('');
+        // Refresh the page to show the updated logo
+        window.location.reload();
+      } else if (isPerformingAction) {
+        setIsPerformingAction(false);
+        setSelectedMemberForAction('');
+        toast.success('Action completed successfully!');
+        // Refresh the page to show the updated member list
+        window.location.reload();
+      }
+    }
+  }, [isConfirmed, isAddingMember, isUpdatingLogo, isPerformingAction]);
 
   const isOwner = address && orgData && address.toLowerCase() === orgData.owner.toLowerCase();
 
@@ -542,97 +556,124 @@ export default function OrgDetailPage() {
     }
   };
 
-  const handleRemoveMember = async (e) => {
+
+
+  const handleUpdateLogo = async (e) => {
     e.preventDefault();
     
-    if (!removeMemberAddress.trim()) {
-      toast.error('Please enter a valid address');
+    if (!orgLogo.trim()) {
+      toast.error('Please enter a Codex CID for the logo');
       return;
     }
 
-    if (!removeMemberAddress.startsWith('0x') || removeMemberAddress.length !== 42) {
-      toast.error('Please enter a valid Ethereum address');
+    if (!isConnected) {
+      toast.error('Please connect your wallet');
       return;
     }
 
-    if (removeMemberAddress.toLowerCase() === orgData.owner.toLowerCase()) {
-      toast.error('Cannot remove the organization owner');
+    if (!isCurrentUserOwner) {
+      toast.error('Only the organization owner can update the logo');
       return;
     }
 
     try {
-      setIsRemovingMember(true);
+      setIsUpdatingLogo(true);
+      writeContract({
+        address: CONTRACT_ADDRESS,
+        abi: ORG_FEEDBACK_ABI,
+        functionName: 'updateLogo',
+        args: [orgId, orgLogo.trim()],
+      });
+    } catch (err) {
+      setIsUpdatingLogo(false);
+      const errorMessage = parseContractError(err);
+      toast.error(errorMessage);
+      console.error('Error updating logo:', err);
+    }
+  };
+
+  // Dropdown action handlers
+  const handleDropdownRemoveMember = async (memberAddress) => {
+    if (!memberAddress.trim()) {
+      toast.error('Invalid member address');
+      return;
+    }
+
+    if (memberAddress.toLowerCase() === orgData.owner.toLowerCase()) {
+      toast.error('Cannot remove the organization owner');
+      return;
+    }
+
+    if (memberAddress.toLowerCase() === address?.toLowerCase()) {
+      toast.error('Cannot remove yourself');
+      return;
+    }
+
+    try {
+      setIsPerformingAction(true);
+      setSelectedMemberForAction(memberAddress);
       writeContract({
         address: CONTRACT_ADDRESS,
         abi: ORG_FEEDBACK_ABI,
         functionName: 'removeMember',
-        args: [orgId, removeMemberAddress.trim()],
+        args: [orgId, memberAddress.trim()],
       });
     } catch (err) {
-      setIsRemovingMember(false);
+      setIsPerformingAction(false);
+      setSelectedMemberForAction('');
       const errorMessage = parseContractError(err);
       toast.error(errorMessage);
       console.error('Error removing member:', err);
     }
   };
 
-  const handleAddModerator = async (e) => {
-    e.preventDefault();
-    
-    if (!newModeratorAddress.trim()) {
-      toast.error('Please enter a valid address');
-      return;
-    }
-
-    if (!newModeratorAddress.startsWith('0x') || newModeratorAddress.length !== 42) {
-      toast.error('Please enter a valid Ethereum address');
+  const handleDropdownAddModerator = async (memberAddress) => {
+    if (!memberAddress.trim()) {
+      toast.error('Invalid member address');
       return;
     }
 
     try {
-      setIsAddingModerator(true);
+      setIsPerformingAction(true);
+      setSelectedMemberForAction(memberAddress);
       writeContract({
         address: CONTRACT_ADDRESS,
         abi: ORG_FEEDBACK_ABI,
         functionName: 'addModerator',
-        args: [orgId, newModeratorAddress.trim()],
+        args: [orgId, memberAddress.trim()],
       });
     } catch (err) {
-      setIsAddingModerator(false);
+      setIsPerformingAction(false);
+      setSelectedMemberForAction('');
       const errorMessage = parseContractError(err);
       toast.error(errorMessage);
       console.error('Error adding moderator:', err);
     }
   };
 
-  const handleRemoveModerator = async (e) => {
-    e.preventDefault();
-    
-    if (!removeModeratorAddress.trim()) {
-      toast.error('Please enter a valid address');
+  const handleDropdownRemoveModerator = async (memberAddress) => {
+    if (!memberAddress.trim()) {
+      toast.error('Invalid member address');
       return;
     }
 
-    if (!removeModeratorAddress.startsWith('0x') || removeModeratorAddress.length !== 42) {
-      toast.error('Please enter a valid Ethereum address');
-      return;
-    }
-
-    if (removeModeratorAddress.toLowerCase() === orgData.owner.toLowerCase()) {
-      toast.error('Cannot remove the organization owner');
+    if (memberAddress.toLowerCase() === orgData.owner.toLowerCase()) {
+      toast.error('Cannot remove moderator status from the organization owner');
       return;
     }
 
     try {
-      setIsRemovingModerator(true);
+      setIsPerformingAction(true);
+      setSelectedMemberForAction(memberAddress);
       writeContract({
         address: CONTRACT_ADDRESS,
         abi: ORG_FEEDBACK_ABI,
         functionName: 'removeModerator',
-        args: [orgId, removeModeratorAddress.trim()],
+        args: [orgId, memberAddress.trim()],
       });
     } catch (err) {
-      setIsRemovingModerator(false);
+      setIsPerformingAction(false);
+      setSelectedMemberForAction('');
       const errorMessage = parseContractError(err);
       toast.error(errorMessage);
       console.error('Error removing moderator:', err);
@@ -862,93 +903,87 @@ export default function OrgDetailPage() {
           </div>
         </div>
 
-        {/* Member Management (Owner & Moderators) */}
+        {/* Logo Update and Add Member Section (Owner & Moderators) */}
         {(isOwner || isModerator) && (
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
-            {/* Add Member */}
-            <div className="bg-white rounded-lg p-6 border border-zinc-200">
-              <h2 className="text-xl font-bold text-gray-800 mb-4">
-                Add Member
-              </h2>
-              <p className="text-gray-700 mb-6 text-sm">
-                Add new members to your organization by entering their wallet address.
-              </p>
-              
-              <form onSubmit={handleAddMember} className="space-y-4">
-                <div>
-                  <label htmlFor="newMember" className="block text-sm font-medium text-zinc-700 mb-2">
-                    Member Wallet Address
-                  </label>
-                  <input
-                    type="text"
-                    id="newMember"
-                    value={newMemberAddress}
-                    onChange={(e) => setNewMemberAddress(e.target.value)}
-                    placeholder="0x..."
-                    className="w-full px-4 py-3 border border-zinc-300 rounded-lg focus:ring-2 focus:ring-zinc-500 focus:border-transparent outline-none transition-colors font-mono text-sm"
-                    disabled={isAddingMember || isConfirming}
-                  />
+          <div className="mb-8">
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
+              {/* Update Organization Logo (Owner Only) */}
+              {isOwner && (
+                <div className="glass-card-solid p-8">
+                  <h3 className="text-xl font-bold text-gray-800 mb-4">
+                    Update Organization Logo
+                  </h3>
+                  <form onSubmit={handleUpdateLogo} className="flex gap-3">
+                    <input
+                      type="text"
+                      value={orgLogo}
+                      onChange={(e) => setOrgLogo(e.target.value)}
+                      placeholder="Enter Codex CID for logo (e.g., QmXxX...)"
+                      className="flex-1 px-4 py-3 bg-white border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#cfc7b5] focus:border-transparent outline-none transition-colors text-gray-800 placeholder-gray-500"
+                      disabled={isUpdatingLogo || isConfirming}
+                    />
+                    <button
+                      type="submit"
+                      disabled={isUpdatingLogo || isConfirming || !orgLogo.trim()}
+                      className="px-6 py-3 bg-[#83785f] text-white rounded-lg font-semibold hover:bg-[#877f6c] transition-all transform hover:scale-105 disabled:opacity-50 disabled:cursor-not-allowed disabled:transform-none"
+                    >
+                      {isUpdatingLogo || isConfirming ? (
+                        <div className="flex items-center justify-center space-x-2">
+                          <div className="animate-spin h-4 w-4 border-2 border-white border-t-transparent rounded-full"></div>
+                          <span>Updating...</span>
+                        </div>
+                      ) : (
+                        'Update Logo'
+                      )}
+                    </button>
+                  </form>
+                  <p className="text-xs text-gray-500 mt-3">
+                    Upload your logo to Codex and paste the CID here. Logo is optional and can be updated anytime.
+                  </p>
                 </div>
-                
-                <button
-                  type="submit"
-                  disabled={isAddingMember || isConfirming || !newMemberAddress.trim()}
-                  className="w-full px-4 py-3 rounded-lg font-medium hover:opacity-90 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
-                  style={{ background: '#22262b', color: '#ffffff' }}
-                >
-                  {isAddingMember || isConfirming ? (
-                    <div className="flex items-center justify-center space-x-2">
-                      <div className="animate-spin h-4 w-4 border-2 border-white border-t-transparent rounded-full"></div>
-                      <span>Adding...</span>
-                    </div>
-                  ) : (
-                    'Add Member'
-                  )}
-                </button>
-              </form>
-            </div>
+              )}
 
-            {/* Remove Member */}
-            <div className="bg-white rounded-lg p-6 border border-zinc-200">
-              <h2 className="text-xl font-bold text-gray-800 mb-4">
-                Remove Member
-              </h2>
-              <p className="text-gray-700 mb-6 text-sm">
-                Remove members from your organization. Note: You cannot remove yourself as the owner.
-              </p>
-              
-              <form onSubmit={handleRemoveMember} className="space-y-4">
-                <div>
-                  <label htmlFor="removeMember" className="block text-sm font-medium text-zinc-700 mb-2">
-                    Member Wallet Address
-                  </label>
-                  <input
-                    type="text"
-                    id="removeMember"
-                    value={removeMemberAddress}
-                    onChange={(e) => setRemoveMemberAddress(e.target.value)}
-                    placeholder="0x..."
-                    className="w-full px-4 py-3 border border-zinc-300 rounded-lg focus:ring-2 focus:ring-zinc-500 focus:border-transparent outline-none transition-colors font-mono text-sm"
-                    disabled={isRemovingMember || isConfirming}
-                  />
-                </div>
+              {/* Add Member */}
+              <div className="bg-white rounded-lg p-6 border border-zinc-200">
+                <h2 className="text-xl font-bold text-gray-800 mb-4">
+                  Add Member
+                </h2>
+                <p className="text-gray-700 mb-6 text-sm">
+                  Add new members to your organization by entering their wallet address.
+                </p>
                 
-                <button
-                  type="submit"
-                  disabled={isRemovingMember || isConfirming || !removeMemberAddress.trim()}
-                  className="w-full px-4 py-3 rounded-lg font-medium hover:opacity-90 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
-                  style={{ background: '#22262b', color: '#ffffff' }}
-                >
-                  {isRemovingMember || isConfirming ? (
-                    <div className="flex items-center justify-center space-x-2">
-                      <div className="animate-spin h-4 w-4 border-2 border-white border-t-transparent rounded-full"></div>
-                      <span>Removing...</span>
-                    </div>
-                  ) : (
-                    'Remove Member'
-                  )}
-                </button>
-              </form>
+                <form onSubmit={handleAddMember} className="space-y-4">
+                  <div>
+                    <label htmlFor="newMember" className="block text-sm font-medium text-zinc-700 mb-2">
+                      Member Wallet Address
+                    </label>
+                    <input
+                      type="text"
+                      id="newMember"
+                      value={newMemberAddress}
+                      onChange={(e) => setNewMemberAddress(e.target.value)}
+                      placeholder="0x..."
+                      className="w-full px-4 py-3 border border-zinc-300 rounded-lg focus:ring-2 focus:ring-zinc-500 focus:border-transparent outline-none transition-colors font-mono text-sm"
+                      disabled={isAddingMember || isConfirming}
+                    />
+                  </div>
+                  
+                  <button
+                    type="submit"
+                    disabled={isAddingMember || isConfirming || !newMemberAddress.trim()}
+                    className="w-full px-4 py-3 bg-[#83785f] text-white rounded-lg font-semibold hover:bg-[#877f6c] transition-all transform hover:scale-105 disabled:opacity-50 disabled:cursor-not-allowed disabled:transform-none"
+                  >
+                    {isAddingMember || isConfirming ? (
+                      <div className="flex items-center justify-center space-x-2">
+                        <div className="animate-spin h-4 w-4 border-2 border-white border-t-transparent rounded-full"></div>
+                        <span>Adding...</span>
+                      </div>
+                    ) : (
+                      'Add Member'
+                    )}
+                  </button>
+                </form>
+              </div>
             </div>
           </div>
         )}
@@ -986,11 +1021,62 @@ export default function OrgDetailPage() {
                         </div>
                       </div>
                       
-                      {memberAddress.toLowerCase() === address?.toLowerCase() && (
-                        <span className="text-xs bg-[#cfc7b5] text-[#83785f] px-2 py-1 rounded-full font-medium">
-                          You
-                        </span>
-                      )}
+                      <div className="flex items-center space-x-2">
+                        {memberAddress.toLowerCase() === address?.toLowerCase() && (
+                          <span className="text-xs bg-[#cfc7b5] text-[#83785f] px-2 py-1 rounded-full font-medium">
+                            You
+                          </span>
+                        )}
+                        
+                        {/* Dropdown Menu - Only show for owners and moderators, not for themselves */}
+                        {(isOwner || isModerator) && memberAddress.toLowerCase() !== address?.toLowerCase() && (
+                          <DropdownMenu>
+                            <DropdownMenuTrigger asChild>
+                              <button className="p-1 hover:bg-gray-200 rounded-md transition-colors">
+                                <MoreHorizontal className="h-4 w-4 text-gray-500" />
+                              </button>
+                            </DropdownMenuTrigger>
+                            <DropdownMenuContent align="end" className="w-48">
+                              {/* Remove Member - Only for owners and moderators */}
+                              {(isOwner || isModerator) && memberAddress.toLowerCase() !== orgData.owner.toLowerCase() && (
+                                <DropdownMenuItem
+                                  onClick={() => handleDropdownRemoveMember(memberAddress)}
+                                  disabled={isPerformingAction && selectedMemberForAction === memberAddress}
+                                  className="text-red-600 focus:text-red-600 cursor-pointer"
+                                >
+                                  <UserMinus className="h-4 w-4 mr-2" />
+                                  Remove Member
+                                </DropdownMenuItem>
+                              )}
+                              
+                              {/* Moderator Actions - Only for owners */}
+                              {isOwner && memberAddress.toLowerCase() !== orgData.owner.toLowerCase() && (
+                                <>
+                                  {moderatorStatus[memberAddress] ? (
+                                    <DropdownMenuItem
+                                      onClick={() => handleDropdownRemoveModerator(memberAddress)}
+                                      disabled={isPerformingAction && selectedMemberForAction === memberAddress}
+                                      className="text-orange-600 focus:text-orange-600 cursor-pointer"
+                                    >
+                                      <ShieldOff className="h-4 w-4 mr-2" />
+                                      Remove Moderator
+                                    </DropdownMenuItem>
+                                  ) : (
+                                    <DropdownMenuItem
+                                      onClick={() => handleDropdownAddModerator(memberAddress)}
+                                      disabled={isPerformingAction && selectedMemberForAction === memberAddress}
+                                      className="text-blue-600 focus:text-blue-600 cursor-pointer"
+                                    >
+                                      <Shield className="h-4 w-4 mr-2" />
+                                      Promote to Moderator
+                                    </DropdownMenuItem>
+                                  )}
+                                </>
+                              )}
+                            </DropdownMenuContent>
+                          </DropdownMenu>
+                        )}
+                      </div>
                     </div>
                   ))}
                 </div>
@@ -1150,108 +1236,6 @@ export default function OrgDetailPage() {
                 <p className="text-gray-600 mt-4">
                   💡 <strong>To see the member list:</strong> Connect with a wallet that is a member, owner, or moderator of this organization.
                 </p>
-              </div>
-            </div>
-          </div>
-        )}
-
-        {/* Moderator Management (Owner Only) */}
-        {isOwner && (
-          <div className="mt-8">
-            <div className="glass-card-solid p-8">
-              <h2 className="text-2xl font-bold text-gray-800 mb-6">
-                Moderator Management
-              </h2>
-              <p className="text-gray-600 mb-8">
-                Moderators can add/remove members and view all feedback in the organization. They cannot see anonymous feedback unless the sender allows it.
-              </p>
-              
-              <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
-                {/* Add Moderator */}
-                <div className="bg-white rounded-lg p-6 border border-zinc-200">
-                  <h3 className="text-lg font-bold text-gray-800 mb-4">
-                    Add Moderator
-                  </h3>
-                  <p className="text-gray-700 mb-6 text-sm">
-                    Promote an existing member to moderator status.
-                  </p>
-                  
-                  <form onSubmit={handleAddModerator} className="space-y-4">
-                    <div>
-                      <label htmlFor="newModerator" className="block text-sm font-medium text-zinc-700 mb-2">
-                        Member Wallet Address
-                      </label>
-                      <input
-                        type="text"
-                        id="newModerator"
-                        value={newModeratorAddress}
-                        onChange={(e) => setNewModeratorAddress(e.target.value)}
-                        placeholder="0x..."
-                        className="w-full px-4 py-3 border border-zinc-300 rounded-lg focus:ring-2 focus:ring-zinc-500 focus:border-transparent outline-none transition-colors font-mono text-sm"
-                        disabled={isAddingModerator || isConfirming}
-                      />
-                    </div>
-                    
-                    <button
-                      type="submit"
-                      disabled={isAddingModerator || isConfirming || !newModeratorAddress.trim()}
-                      className="w-full px-4 py-3 rounded-lg font-medium hover:opacity-90 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
-                      style={{ background: '#83785f', color: '#ffffff' }}
-                    >
-                      {isAddingModerator || isConfirming ? (
-                        <div className="flex items-center justify-center space-x-2">
-                          <div className="animate-spin h-4 w-4 border-2 border-white border-t-transparent rounded-full"></div>
-                          <span>Adding...</span>
-                        </div>
-                      ) : (
-                        'Add Moderator'
-                      )}
-                    </button>
-                  </form>
-                </div>
-
-                {/* Remove Moderator */}
-                <div className="bg-white rounded-lg p-6 border border-zinc-200">
-                  <h3 className="text-lg font-bold text-gray-800 mb-4">
-                    Remove Moderator
-                  </h3>
-                  <p className="text-gray-700 mb-6 text-sm">
-                    Remove moderator status from a member. They will remain as a regular member.
-                  </p>
-                  
-                  <form onSubmit={handleRemoveModerator} className="space-y-4">
-                    <div>
-                      <label htmlFor="removeModerator" className="block text-sm font-medium text-zinc-700 mb-2">
-                        Moderator Wallet Address
-                      </label>
-                      <input
-                        type="text"
-                        id="removeModerator"
-                        value={removeModeratorAddress}
-                        onChange={(e) => setRemoveModeratorAddress(e.target.value)}
-                        placeholder="0x..."
-                        className="w-full px-4 py-3 border border-zinc-300 rounded-lg focus:ring-2 focus:ring-zinc-500 focus:border-transparent outline-none transition-colors font-mono text-sm"
-                        disabled={isRemovingModerator || isConfirming}
-                      />
-                    </div>
-                    
-                    <button
-                      type="submit"
-                      disabled={isRemovingModerator || isConfirming || !removeModeratorAddress.trim()}
-                      className="w-full px-4 py-3 rounded-lg font-medium hover:opacity-90 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
-                      style={{ background: '#83785f', color: '#ffffff' }}
-                    >
-                      {isRemovingModerator || isConfirming ? (
-                        <div className="flex items-center justify-center space-x-2">
-                          <div className="animate-spin h-4 w-4 border-2 border-white border-t-transparent rounded-full"></div>
-                          <span>Removing...</span>
-                        </div>
-                      ) : (
-                        'Remove Moderator'
-                      )}
-                    </button>
-                  </form>
-                </div>
               </div>
             </div>
           </div>

@@ -165,6 +165,8 @@ function FeedbackPageContent() {
       } else {
         setFeedbacks([]);
         console.log('📭 No feedbacks available for this address');
+        
+
       }
     }
   }, [feedbackData]);
@@ -374,7 +376,7 @@ function FeedbackPageContent() {
               />
             ))
           ) : (
-                          <div className="glass-card-solid p-6 sm:p-12 text-center">
+            <div className="glass-card-solid p-6 sm:p-12 text-center">
               <div className="text-gray-700 mb-4">
                 {filterType === 'all' ? (
                   "You don't have any accessible feedback yet"
@@ -386,6 +388,9 @@ function FeedbackPageContent() {
                   "No feedback to review as admin"
                 )}
               </div>
+              
+
+              
               <p className="text-gray-700 text-sm mb-6">
                 {filterType === 'sent' || filterType === 'all' ? (
                   "Start by sending feedback to your team members"
@@ -393,15 +398,20 @@ function FeedbackPageContent() {
                   "Feedback will appear here when available"
                 )}
               </p>
-              {(filterType === 'sent' || filterType === 'all') && (
-                <Link
-                  href="/feedback/new"
-                  className="inline-block px-6 py-3 rounded-lg font-semibold hover:opacity-90 transition-all transform hover:scale-105"
-                  style={{ background: '#22262b', color: '#ffffff' }}
-                >
-                  Send Your First Feedback
-                </Link>
-              )}
+              
+              <div className="space-y-3">
+                {(filterType === 'sent' || filterType === 'all') && (
+                  <Link
+                    href="/feedback/new"
+                    className="inline-block px-6 py-3 rounded-lg font-semibold hover:opacity-90 transition-all transform hover:scale-105"
+                    style={{ background: '#22262b', color: '#ffffff' }}
+                  >
+                    Send Your First Feedback
+                  </Link>
+                )}
+                
+
+              </div>
             </div>
           )}
         </div>

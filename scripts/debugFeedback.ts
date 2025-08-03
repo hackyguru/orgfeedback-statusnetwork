@@ -2,7 +2,7 @@ import { ethers } from "hardhat";
 
 async function main() {
   // Contract address
-  const contractAddress = "0xAab9Feae724F7251c6FCB9632423af9133C64480";
+  const contractAddress = "0x2BfeB9b810CD42C12018076031A548FB357517FC";
   
   // Get the contract factory
   const OrgFeedback = await ethers.getContractFactory("OrgFeedback");

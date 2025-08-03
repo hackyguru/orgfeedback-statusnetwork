@@ -112,11 +112,9 @@ export default function OrgPage() {
   const router = useRouter();
   const [orgName, setOrgName] = useState('');
   const [orgDescription, setOrgDescription] = useState('');
-  const [orgLogo, setOrgLogo] = useState('');
   const [isCreating, setIsCreating] = useState(false);
   const [ownedOrg, setOwnedOrg] = useState(null);
   const [isHydrated, setIsHydrated] = useState(false);
-  const [isUpdatingLogo, setIsUpdatingLogo] = useState(false);
 
   const { writeContract, data: hash, error } = useWriteContract();
   
@@ -151,24 +149,16 @@ export default function OrgPage() {
         toast.success('Organization created successfully!');
         setOrgName('');
         setOrgDescription('');
-        setOrgLogo('');
         // Refresh the page to show the new organization
-        window.location.reload();
-      } else if (isUpdatingLogo) {
-        setIsUpdatingLogo(false);
-        toast.success('Logo updated successfully!');
-        setOrgLogo('');
-        // Refresh the page to show the updated logo
         window.location.reload();
       }
     }
-  }, [isConfirmed, isCreating, isUpdatingLogo]);
+  }, [isConfirmed, isCreating]);
 
   useEffect(() => {
     console.log('🔍 Error useEffect triggered, error:', error);
     if (error) {
       setIsCreating(false);
-      setIsUpdatingLogo(false);
       
       const errorMessage = parseContractError(error);
       toast.error(errorMessage);
@@ -223,34 +213,7 @@ export default function OrgPage() {
     }
   };
 
-  const handleUpdateLogo = async (e) => {
-    e.preventDefault();
-    
-    if (!orgLogo.trim()) {
-      toast.error('Please enter an Codex CID for the logo');
-      return;
-    }
 
-    if (!isConnected) {
-      toast.error('Please connect your wallet');
-      return;
-    }
-
-    try {
-      setIsUpdatingLogo(true);
-      writeContract({
-        address: CONTRACT_ADDRESS,
-        abi: ORG_FEEDBACK_ABI,
-        functionName: 'updateLogo',
-        args: [address, orgLogo.trim()],
-      });
-    } catch (err) {
-      setIsUpdatingLogo(false);
-      const errorMessage = parseContractError(err);
-      toast.error(errorMessage);
-      console.error('Error updating logo:', err);
-    }
-  };
 
   if (!isConnected) {
     return (
@@ -483,39 +446,7 @@ export default function OrgPage() {
               )}
             </div>
 
-            {/* Logo Update Section */}
-            <div className="mb-6 p-4 bg-gray-50 rounded-lg">
-              <h4 className="text-sm font-medium text-gray-800 mb-3">
-                Update Organization Logo
-              </h4>
-              <form onSubmit={handleUpdateLogo} className="flex gap-3">
-                <input
-                  type="text"
-                  value={orgLogo}
-                  onChange={(e) => setOrgLogo(e.target.value)}
-                  placeholder="Enter Codex CID for logo (e.g., QmXxX...)"
-                  className="flex-1 px-4 py-3 bg-white border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#cfc7b5] focus:border-transparent outline-none transition-colors text-gray-800 placeholder-gray-500"
-                  disabled={isUpdatingLogo || isConfirming}
-                />
-                <button
-                  type="submit"
-                  disabled={isUpdatingLogo || isConfirming || !orgLogo.trim()}
-                  className="px-6 py-3 bg-[#83785f] text-white rounded-lg font-semibold hover:bg-[#877f6c] transition-all transform hover:scale-105 disabled:opacity-50 disabled:cursor-not-allowed disabled:transform-none"
-                >
-                  {isUpdatingLogo || isConfirming ? (
-                    <div className="flex items-center justify-center space-x-2">
-                      <div className="animate-spin h-4 w-4 border-2 border-white border-t-transparent rounded-full"></div>
-                      <span>Updating...</span>
-                    </div>
-                  ) : (
-                    'Update Logo'
-                  )}
-                </button>
-              </form>
-              <p className="text-xs text-gray-500 mt-3">
-                Upload your logo to Codex and paste the CID here. Logo is optional and can be updated anytime.
-              </p>
-            </div>
+
 
             <div className="flex flex-col sm:flex-row gap-4">
               <button

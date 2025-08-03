@@ -1,10 +1,11 @@
-import { createLightNode, waitForRemotePeer, createDecoder, createEncoder } from '@waku/sdk';
+import { createLightNode, waitForRemotePeer, createDecoder, createEncoder, Protocols } from '@waku/sdk';
 
 class WakuService {
   constructor() {
     this.node = null;
     this.isInitialized = false;
     this.listeners = new Set();
+    this.storedMessages = new Map(); // Local storage for messages
   }
 
   async initialize() {
@@ -17,6 +18,20 @@ class WakuService {
       
       // Wait for peer connection
       await waitForRemotePeer(this.node);
+      
+      // Wait for Store peers specifically with timeout
+      try {
+        const storePeerPromise = this.node.waitForPeers([Protocols.Store]);
+        const timeoutPromise = new Promise((_, reject) => 
+          setTimeout(() => reject(new Error('Store peer connection timeout')), 10000)
+        );
+        
+        await Promise.race([storePeerPromise, timeoutPromise]);
+        console.log('✅ Connected to Store peers');
+      } catch (error) {
+        console.log('⚠️ Store peer connection failed, continuing without Store Protocol');
+        // Continue without Store peers - real-time messaging will still work
+      }
       
       this.isInitialized = true;
       console.log('✅ Waku node initialized successfully');
@@ -98,6 +113,10 @@ class WakuService {
               receivedAt: Date.now()
             };
 
+            // Store the message locally
+            this.storedMessages.set(request.id, request);
+            console.log('💾 Stored message locally:', request.id);
+
             console.log('📨 Received feedback request:', request);
             onRequestReceived(request);
           }
@@ -128,33 +147,56 @@ class WakuService {
     }
 
     try {
+      // First, try to get messages from local storage
+      const localRequests = Array.from(this.storedMessages.values())
+        .filter(request => request.receiver.toLowerCase() === userAddress.toLowerCase());
+
+      // Always try Store Protocol first, even if we have local messages
+      // This ensures we get historical messages on page refresh
+
+            // Query Store Protocol using the correct API
       const contentTopic = this.createContentTopic(userAddress);
       const decoder = createDecoder(contentTopic);
 
-      // Check if store is available (light nodes might not have store)
-      if (!this.node.store || typeof this.node.store.query !== 'function') {
-        console.log('⚠️ Store not available in light node, returning empty array');
-        return [];
+      // Check if store is available
+      if (!this.node.store) {
+        console.log('Store not available, using local storage only');
+        return localRequests;
       }
 
-      // Query for messages from the last 7 days
+      // Check if we have Store peers connected
+      try {
+        const peers = await this.node.libp2p.getConnections();
+        const storePeers = peers.filter(conn => 
+          conn.remotePeer && conn.remotePeer.toString().includes('store')
+        );
+        
+        if (storePeers.length === 0) {
+          console.log('No Store peers connected, using local storage only');
+          return localRequests;
+        }
+        
+        console.log(`Connected to ${storePeers.length} Store peers`);
+      } catch (peerError) {
+        console.log('Could not check Store peers, proceeding with query');
+      }
+
+      // Query for messages from the last 30 days
+      const endTime = new Date();
       const startTime = new Date();
-      startTime.setDate(startTime.getDate() - 7);
+      startTime.setDate(startTime.getDate() - 30);
+
+      const requests = [];
       
       try {
-        const messages = await this.node.store.query([decoder], {
-          timeFilter: {
-            startTime,
-            endTime: new Date()
+        // Use queryWithOrderedCallback for proper Store Protocol querying
+        const callback = (wakuMessage) => {
+          if (!wakuMessage.payload) {
+            return;
           }
-        });
-
-        const requests = [];
-        for (const message of messages) {
-          if (!message.payload) continue;
 
           try {
-            const payload = JSON.parse(new TextDecoder().decode(message.payload));
+            const payload = JSON.parse(new TextDecoder().decode(wakuMessage.payload));
             
             // Only process messages where this user is the receiver
             if (payload.receiver.toLowerCase() === userAddress.toLowerCase()) {
@@ -167,22 +209,79 @@ class WakuService {
                 receivedAt: Date.now()
               };
 
+              // Store locally for future access
+              this.storedMessages.set(request.id, request);
+
               requests.push(request);
             }
           } catch (error) {
-            console.error('❌ Error parsing stored message:', error);
+            console.error('Error parsing stored message:', error);
           }
+        };
+
+        // Try querying without time filter first (more reliable)
+        const queryWithoutTimeFilter = async () => {
+          try {
+            const queryPromise = this.node.store.queryWithOrderedCallback([decoder], callback);
+            const timeoutPromise = new Promise((_, reject) => 
+              setTimeout(() => reject(new Error('Store query timeout')), 5000)
+            );
+            
+            await Promise.race([queryPromise, timeoutPromise]);
+            return true; // Success
+          } catch (error) {
+            console.log('Query without time filter failed:', error.message);
+            return false; // Failed
+          }
+        };
+
+        const queryWithTimeFilter = async () => {
+          try {
+            const queryPromise = this.node.store.queryWithOrderedCallback([decoder], callback, {
+              timeFilter: {
+                startTime,
+                endTime
+              }
+            });
+            const timeoutPromise = new Promise((_, reject) => 
+              setTimeout(() => reject(new Error('Store query timeout')), 5000)
+            );
+            
+            await Promise.race([queryPromise, timeoutPromise]);
+            return true; // Success
+          } catch (error) {
+            console.log('Query with time filter failed:', error.message);
+            return false; // Failed
+          }
+        };
+
+        // Try both query strategies
+        const success = await queryWithoutTimeFilter() || await queryWithTimeFilter();
+        
+        if (!success) {
+          console.log('All Store Protocol queries failed, using local storage only');
         }
 
-        console.log('📦 Retrieved stored requests:', requests.length);
+        // If no messages from Store Protocol, return local messages as fallback
+        if (requests.length === 0 && localRequests.length > 0) {
+          return localRequests;
+        }
+        
         return requests;
       } catch (storeError) {
-        console.error('❌ Store query failed:', storeError);
-        console.log('⚠️ Falling back to empty array');
-        return [];
+        console.error('Store query failed:', storeError);
+        console.log('Store error details:', {
+          name: storeError.name,
+          message: storeError.message,
+          code: storeError.code,
+          status: storeError.status
+        });
+        
+        // Return local requests as fallback
+        return localRequests;
       }
     } catch (error) {
-      console.error('❌ Failed to get stored requests:', error);
+      console.error('Failed to get stored requests:', error);
       return [];
     }
   }
@@ -211,6 +310,8 @@ class WakuService {
       this.isInitialized = false;
     }
   }
+
+
 }
 
 // Create singleton instance

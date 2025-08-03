@@ -36,6 +36,13 @@ export default function NewFeedbackPage() {
   // Multi-step state
   const [currentStep, setCurrentStep] = useState(1);
   const totalSteps = 4;
+  
+  // Fix hydration mismatch
+  const [isHydrated, setIsHydrated] = useState(false);
+  
+  useEffect(() => {
+    setIsHydrated(true);
+  }, []);
 
   const { writeContract, data: hash, error } = useWriteContract();
   
@@ -277,6 +284,25 @@ export default function NewFeedbackPage() {
     }
   };
 
+  // Show loading state until hydrated to prevent hydration mismatch
+  if (!isHydrated) {
+    return (
+      <div className="min-h-screen flex">
+        <Sidebar />
+        <div className="flex-1 p-8 lg:p-12">
+          <div className="w-full">
+            <div className="glass-card-solid p-12 text-center">
+              <div className="animate-spin w-16 h-16 border-4 border-[#83785f] border-t-transparent rounded-full mx-auto mb-6"></div>
+              <h1 className="text-3xl font-bold text-gray-800 mb-4">
+                Loading...
+              </h1>
+            </div>
+          </div>
+        </div>
+      </div>
+    );
+  }
+
   if (!isConnected) {
     return (
       <div className="min-h-screen flex">
@@ -462,7 +488,7 @@ export default function NewFeedbackPage() {
                     type="checkbox"
                     checked={revealToReceiver}
                     onChange={(e) => setRevealToReceiver(e.target.checked)}
-                    className="w-5 h-5 text-gray-700 border-gray-300 rounded focus:ring-gray-500 mt-1"
+                    className="w-5 h-5 text-[#83785f] accent-[#83785f] border-[#cfc7b5] rounded focus:ring-[#83785f] focus:border-[#83785f] mt-1"
                     disabled={isSending || isConfirming}
                   />
                   <div>
@@ -480,7 +506,7 @@ export default function NewFeedbackPage() {
                     type="checkbox"
                     checked={revealToAdmin}
                     onChange={(e) => setRevealToAdmin(e.target.checked)}
-                    className="w-5 h-5 text-gray-700 border-gray-300 rounded focus:ring-gray-500 mt-1"
+                    className="w-5 h-5 text-[#83785f] accent-[#83785f] border-[#cfc7b5] rounded focus:ring-[#83785f] focus:border-[#83785f] mt-1"
                     disabled={isSending || isConfirming}
                   />
                   <div>
@@ -535,7 +561,7 @@ export default function NewFeedbackPage() {
 
               <div className="glass-card-solid p-8">
                 <h4 className="text-lg font-semibold text-gray-800 mb-4">Feedback Message</h4>
-                <div className="bg-gray-50 p-4 rounded-lg border-l-4 border-green-500">
+                <div className="bg-gray-50 p-4 rounded-lg border-l-4 border-[#83785f]">
                   <p className="text-gray-800 whitespace-pre-wrap">{message}</p>
                 </div>
               </div>
@@ -545,7 +571,7 @@ export default function NewFeedbackPage() {
                 <div className="space-y-2">
                   <div className="flex items-center space-x-2">
                     {revealToReceiver ? (
-                      <CheckCircle className="w-5 h-5 text-green-500" />
+                      <CheckCircle className="w-5 h-5 text-[#83785f]" />
                     ) : (
                       <div className="w-5 h-5 border-2 border-gray-300 rounded-full"></div>
                     )}
@@ -553,7 +579,7 @@ export default function NewFeedbackPage() {
                   </div>
                   <div className="flex items-center space-x-2">
                     {revealToAdmin ? (
-                      <CheckCircle className="w-5 h-5 text-green-500" />
+                      <CheckCircle className="w-5 h-5 text-[#83785f]" />
                     ) : (
                       <div className="w-5 h-5 border-2 border-gray-300 rounded-full"></div>
                     )}

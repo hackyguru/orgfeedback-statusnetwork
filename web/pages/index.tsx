@@ -86,7 +86,8 @@ export default function Home() {
       }
     } catch (error) {
       console.error('Failed to load feedback requests:', error);
-      toast.error('Failed to load feedback requests');
+      // Don't show error toast for Store Protocol issues - it's expected to fail sometimes
+      setFeedbackRequests([]);
     } finally {
       setIsLoadingRequests(false);
     }
@@ -352,8 +353,16 @@ export default function Home() {
                 >
                   <MessageCircleReply className="w-4 h-4 inline mr-2" />
                   Feedback Requests
-                  <div className="text-xs bg-[#83785f] text-[#f8f6f0] rounded-full px-2 py-1 ml-2">{feedbackRequests.length}</div>
+                  <div className="text-xs bg-[#83785f] text-[#f8f6f0] rounded-full px-2 py-1 ml-2">
+                    {isLoadingRequests ? (
+                      <div className="animate-spin h-3 w-3 border border-white border-t-transparent rounded-full"></div>
+                    ) : (
+                      feedbackRequests.length
+                    )}
+                  </div>
                 </div>
+                
+
               <img 
                 src="/poweredby.png" 
                 alt="Powered by" 
@@ -632,6 +641,9 @@ export default function Home() {
         <SheetContent side="right" className="w-96 p-0">
           <SheetHeader className="px-6 py-6 border-b border-gray-200">
             <SheetTitle className="text-xl font-bold text-gray-800">Feedback Requests</SheetTitle>
+            <div className="text-xs text-[#83785f] bg-[#f8f6f0] border border-[#cfc7b5] px-3 py-2 rounded-lg mt-2">
+              ⚠️ Alpha feature - may experience connectivity issues with Waku network
+            </div>
           </SheetHeader>
           
           <div className="px-6 py-6 overflow-y-auto h-full">
@@ -693,6 +705,9 @@ export default function Home() {
         <DialogContent className="sm:max-w-[600px]">
           <DialogHeader>
             <DialogTitle className="text-xl font-bold text-gray-800">Request Feedback</DialogTitle>
+            <div className="text-xs text-[#83785f] bg-[#f8f6f0] border border-[#cfc7b5] px-3 py-2 rounded-lg mt-2">
+              ⚠️ Alpha feature - may experience connectivity issues with Waku network
+            </div>
           </DialogHeader>
           
           <div className="space-y-6 py-4">
