@@ -10,7 +10,6 @@ export default function Document() {
           href="https://fonts.googleapis.com/css2?family=Figtree:ital,wght@0,300..900;1,300..900&display=swap"
           rel="stylesheet"
         />
-        <title>Feedblock</title>
         <meta name="description" content="Optimize your team's perfomance with decentralised feedback exchange" />
 
         <meta property="og:url" content="https://feedblock.hackyguru.com" />

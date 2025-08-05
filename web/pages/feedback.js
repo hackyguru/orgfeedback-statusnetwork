@@ -1,6 +1,7 @@
 import { useAccount, useReadContract } from 'wagmi';
 import { useState, useEffect } from 'react';
 import dynamic from 'next/dynamic';
+import Head from 'next/head';
 import Sidebar from '@/components/Sidebar';
 import { CONTRACT_ADDRESS } from '@/lib/config';
 import { ORG_FEEDBACK_ABI } from '@/lib/abi';
@@ -244,8 +245,12 @@ function FeedbackPageContent() {
   }
 
   return (
-    <div className="min-h-screen flex">
-      <Sidebar />
+    <>
+      <Head>
+        <title>Feedback - Feedblock</title>
+      </Head>
+      <div className="min-h-screen flex">
+        <Sidebar />
       
       <div className="flex-1 p-4 sm:p-8 lg:p-12 overflow-x-hidden">
         <div className="w-full max-w-full">
@@ -417,7 +422,8 @@ function FeedbackPageContent() {
         </div>
         </div>
       </div>
-    </div>
+      </div>
+    </>
   );
 }
 

@@ -1,5 +1,6 @@
 import { useAccount, useReadContract } from 'wagmi';
 import { useEffect, useState, useCallback } from 'react';
+import Head from 'next/head';
 import Sidebar from '@/components/Sidebar';
 import { CONTRACT_ADDRESS } from '@/lib/config';
 import { ORG_FEEDBACK_ABI } from '@/lib/abi';
@@ -323,8 +324,12 @@ export default function Home() {
   }
 
   return (
-    <div className="min-h-screen flex">
-      <Sidebar />
+    <>
+      <Head>
+        <title>Feedblock - Optimize your team&apos;s performance with decentralized feedback exchange</title>
+      </Head>
+      <div className="min-h-screen flex">
+        <Sidebar />
       
       <div className="flex-1 p-8 lg:p-12">
         <div className="w-full">
@@ -793,6 +798,7 @@ export default function Home() {
           </div>
         </DialogContent>
       </Dialog>
-    </div>
+      </div>
+    </>
   );
 }
