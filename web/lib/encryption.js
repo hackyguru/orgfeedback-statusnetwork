@@ -1,4 +1,4 @@
-import { encrypt, decrypt } from '@metamask/eth-sig-util';
+import { encrypt } from '@metamask/eth-sig-util';
 
 /**
  * Get encryption public key from MetaMask for the current connected account
@@ -112,7 +112,7 @@ export const readFeedbackMessage = async (messageData, address) => {
  * @param {string} adminAddress - Admin's address
  * @returns {Promise<{forSender: string, forReceiver: string, forAdmin: string}>}
  */
-export const encryptFeedbackMessage = async (message, senderAddress, receiverAddress, adminAddress) => {
+export const encryptFeedbackMessage = async (message, senderAddress, receiverAddress, adminAddress) => { // receiverAddress and adminAddress unused but keeping for API consistency
   try {
     // Only encrypt for sender (current user) - MetaMask only allows encryption for connected account
     const senderKey = await getEncryptionPublicKey(senderAddress);

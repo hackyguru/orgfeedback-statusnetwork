@@ -1,7 +1,6 @@
 import { useAccount, useReadContract } from 'wagmi';
 import { useEffect, useState, useCallback } from 'react';
 import Sidebar from '@/components/Sidebar';
-import OrgCard from '@/components/OrgCard';
 import { CONTRACT_ADDRESS } from '@/lib/config';
 import { ORG_FEEDBACK_ABI } from '@/lib/abi';
 import Link from 'next/link';
@@ -19,24 +18,18 @@ import {
   DialogContent,
   DialogHeader,
   DialogTitle,
-  DialogTrigger,
 } from "@/components/ui/dialog";
 import { 
-  Building2, 
   Users, 
   Crown, 
-  TrendingUp, 
   MessageSquare, 
   BarChart3, 
-  Settings,
-  Plus,
   Sparkles,
   ArrowRight,
   ChevronLeft,
   ChevronRight,
   MessageCircleReply,
-  MessageCirclePlus,
-  X
+  MessageCirclePlus
 } from 'lucide-react';
 import Image from 'next/image';
 
@@ -50,7 +43,7 @@ export default function Home() {
   const [isRequestFeedbackOpen, setIsRequestFeedbackOpen] = useState(false);
   const [requestAddresses, setRequestAddresses] = useState('');
   const [requestContent, setRequestContent] = useState('');
-  const [feedbackRequests, setFeedbackRequests] = useState<any[]>([]);
+  const [feedbackRequests, setFeedbackRequests] = useState<Array<{ id: string; sender: string; message: string; timestamp: number }>>([]);
   const [isLoadingRequests, setIsLoadingRequests] = useState(false);
   const [isSendingRequest, setIsSendingRequest] = useState(false);
 
@@ -99,8 +92,9 @@ export default function Home() {
 
     const setupWakuListener = async () => {
       try {
-        const unsubscribe = await wakuService.listenForRequests(address, (request: any) => {
-          setFeedbackRequests(prev => [request, ...prev]);
+        const unsubscribe = await wakuService.listenForRequests(address, (request: { sender: string; message: string; timestamp: number }) => {
+          const newRequest = { ...request, id: `${request.sender}-${Date.now()}` };
+          setFeedbackRequests(prev => [newRequest, ...prev]);
           toast.success('New feedback request received!');
         });
         
@@ -135,7 +129,7 @@ export default function Home() {
     };
   }, []);
 
-  const handleAcceptRequest = (request: { sender: string; message: string }) => {
+  const handleAcceptRequest = (request: { id: string; sender: string; message: string; timestamp: number }) => {
     // Navigate to send feedback page with the sender pre-selected
     const feedbackUrl = `/feedback/new?recipient=${request.sender}&message=${encodeURIComponent(request.message)}`;
     window.open(feedbackUrl, '_blank');
@@ -182,14 +176,14 @@ export default function Home() {
   }, []);
 
   // Get total organizations count
-  const { data: totalOrgs } = useReadContract({
+  const { data: totalOrgs } = useReadContract({ // Unused but keeping for potential future use
     address: CONTRACT_ADDRESS,
     abi: ORG_FEEDBACK_ABI,
     functionName: 'totalOrganizations',
   });
 
   // Get user's organizations
-  const { data: organizations, isLoading: isLoadingOrgs } = useReadContract({
+  const { data: organizations, isLoading: isLoadingOrgs } = useReadContract({ // isLoadingOrgs unused but keeping for potential future use
     address: CONTRACT_ADDRESS,
     abi: ORG_FEEDBACK_ABI,
     functionName: 'getOrganizationsByUser',
@@ -257,7 +251,7 @@ export default function Home() {
     if (organizations && Array.isArray(organizations)) {
       setUserOrgs(organizations as string[]);
     }
-  }, [organizations]);
+  }, [organizations, currentOrgIndex, userOrgs]);
 
   // Always render the same basic structure to prevent hydration mismatch
   if (!isHydrated) {
@@ -363,9 +357,11 @@ export default function Home() {
                 </div>
                 
 
-              <img 
+              <Image 
                 src="/poweredby.png" 
                 alt="Powered by" 
+                width={200}
+                height={80}
                 className="h-20 w-auto opacity-90 hover:opacity-100 transition-opacity"
               />
             </div>
@@ -419,13 +415,19 @@ export default function Home() {
                     {/* Organization Logo and Name */}
                     <div className="flex items-center space-x-3 mb-4">
                       {currentOrgMetadata && Array.isArray(currentOrgMetadata) && currentOrgMetadata[2] ? (
-                        <img
+                        <Image
                           src={`https://www.thirdstorage.cloud/api/gateway/${currentOrgMetadata[2]}`}
                           alt={`${currentOrgMetadata[0]} logo`}
+                          width={48}
+                          height={48}
                           className="w-12 h-12 rounded-lg object-cover border border-gray-200"
-                          onError={(e: any) => {
-                            e.target.style.display = 'none';
-                            e.target.nextSibling.style.display = 'flex';
+                          onError={(e: React.SyntheticEvent<HTMLImageElement>) => {
+                            const target = e.target as HTMLImageElement;
+                            target.style.display = 'none';
+                            const nextSibling = target.nextSibling as HTMLElement;
+                            if (nextSibling) {
+                              nextSibling.style.display = 'flex';
+                            }
                           }}
                         />
                       ) : null}
@@ -666,9 +668,11 @@ export default function Home() {
                     {/* Address */}
                     <div className="flex items-center justify-between mb-4">
                       <div className="flex items-center space-x-2">
-                        <img
+                        <Image
                           src={blockies.create({ seed: request.sender }).toDataURL()}
                           alt="Address avatar"
+                          width={24}
+                          height={24}
                           className="w-6 h-6 rounded-full"
                         />
                         <div className="text-sm font-mono text-gray-600 bg-gray-50 px-3 py-1 rounded-md">
@@ -731,9 +735,11 @@ export default function Home() {
                   <div className="flex flex-wrap gap-2">
                     {parseAddresses(requestAddresses).map((address, index) => (
                       <div key={index} className="flex items-center space-x-2 bg-gray-50 rounded-lg px-3 py-2">
-                        <img
+                        <Image
                           src={blockies.create({ seed: address, size: 8 }).toDataURL()}
                           alt={`Blockie for ${address}`}
+                          width={24}
+                          height={24}
                           className="w-6 h-6 rounded"
                         />
                         <span className="text-sm font-mono text-gray-600">

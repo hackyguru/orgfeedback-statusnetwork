@@ -139,8 +139,13 @@ export default function OrgPage() {
         logoIpfsCid: orgMetadata[2],
         owner: orgMetadata[3],
       });
+      
+      // Redirect to organization management page if user owns an organization
+      if (address && isHydrated) {
+        router.push(`/org/${address}`);
+      }
     }
-  }, [orgMetadata]);
+  }, [orgMetadata, address, isHydrated, router]);
 
   useEffect(() => {
     if (isConfirmed) {
@@ -330,7 +335,7 @@ export default function OrgPage() {
     );
   }
 
-  if (isLoadingOrg) {
+  if (isLoadingOrg || (isConnected && address && !isHydrated)) {
     return (
       <div className="min-h-screen flex">
         <Sidebar />
@@ -400,82 +405,32 @@ export default function OrgPage() {
           Create and manage your organizations
         </p>
 
-        {ownedOrg ? (
-          // User already owns an organization
+        {ownedOrg && isConnected && (
+          // User owns an organization - show loading while redirecting
           <div className="glass-card-solid p-8 mb-8">
-            <h2 className="text-2xl font-bold text-gray-800 mb-6">
-              Your Organization
-            </h2>
-            
-            <div className="mb-6">
-              {/* Organization Logo */}
-              <div className="flex items-center space-x-4 mb-4">
-                {ownedOrg.logoIpfsCid ? (
-                  <img
-                    src={`https://www.thirdstorage.cloud/api/gateway/${ownedOrg.logoIpfsCid}`}
-                    alt={`${ownedOrg.name} logo`}
-                    className="w-16 h-16 rounded-lg object-cover border border-gray-200"
-                    onError={(e) => {
-                      e.target.style.display = 'none';
-                      e.target.nextSibling.style.display = 'flex';
-                    }}
-                  />
-                ) : null}
-                <div className={`w-16 h-16 bg-[#83785f] rounded-lg flex items-center justify-center ${ownedOrg.logoIpfsCid ? 'hidden' : 'flex'}`}>
-                  <span className="text-white text-2xl font-bold">
-                    {ownedOrg.name.charAt(0).toUpperCase()}
-                  </span>
-                </div>
-                <div>
-                  <h3 className="text-lg font-semibold text-gray-800 mb-1">
-                    {ownedOrg.name}
-                  </h3>
-                  <p className="text-gray-700 leading-relaxed">
-                    {ownedOrg.description}
-                  </p>
-                </div>
-              </div>
-              
-              <div className="text-sm text-zinc-500 font-mono mb-4">
-                Organization ID: {address}
-              </div>
-              {ownedOrg.logoIpfsCid && (
-                <div className="text-sm text-gray-600">
-                  Logo Codex CID: {ownedOrg.logoIpfsCid}
-                </div>
-              )}
-            </div>
-
-
-
-            <div className="flex flex-col sm:flex-row gap-4">
-              <button
-                onClick={() => router.push(`/org/${address}`)}
-                className="px-6 py-3 rounded-lg font-semibold hover:opacity-90 transition-all transform hover:scale-105"
-                style={{ background: '#22262b', color: '#ffffff' }}
-              >
-                Manage Members
-              </button>
-              <button
-                onClick={() => router.push('/feedback/new')}
-                className="px-6 py-3 rounded-lg font-semibold hover:opacity-90 transition-all transform hover:scale-105"
-                style={{ background: '#cfc7b5', color: '#22262b' }}
-              >
-                Send Feedback
-              </button>
+            <div className="text-center">
+              <div className="animate-spin w-16 h-16 border-4 border-[#83785f] border-t-transparent rounded-full mx-auto mb-6"></div>
+              <h2 className="text-2xl font-bold text-gray-800 mb-4">
+                Redirecting to Your Organization
+              </h2>
+              <p className="text-gray-600">
+                Taking you to your organization management page...
+              </p>
             </div>
           </div>
-        ) : (
+        )}
+
+        {!ownedOrg && !isLoadingOrg && (
           // User doesn't own an organization yet
           <div className="glass-card-solid p-8 mb-8">
             <h2 className="text-2xl font-bold text-gray-800 mb-6">
               Create Your Organization
             </h2>
             
-            <p className="text-gray-700 mb-8">
-              Each wallet address can create only one organization. Once created, 
-              you'll be able to add members and manage feedback for your team.
-            </p>
+                          <p className="text-gray-700 mb-8">
+                Each wallet address can create only one organization. Once created, 
+                you&apos;ll be able to add members and manage feedback for your team.
+              </p>
 
             <form onSubmit={handleCreateOrganization} className="space-y-6">
               <div>

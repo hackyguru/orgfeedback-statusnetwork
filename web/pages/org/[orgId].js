@@ -6,13 +6,14 @@ import { CONTRACT_ADDRESS } from '@/lib/config';
 import { ORG_FEEDBACK_ABI } from '@/lib/abi';
 import toast from 'react-hot-toast';
 import Link from 'next/link';
-import { MoreHorizontal, UserMinus, UserPlus, Shield, ShieldOff } from 'lucide-react';
+import Image from 'next/image';
+import { MoreHorizontal, UserMinus, Shield, ShieldOff } from 'lucide-react';
 import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
   DropdownMenuTrigger,
-  DropdownMenuSeparator,
+ 
 } from '@/components/ui/dropdown-menu';
 
 // Utility function to parse smart contract error messages
@@ -785,9 +786,9 @@ export default function OrgDetailPage() {
             <h1 className="text-2xl font-bold text-gray-800 mb-4">
               Organization Not Found
             </h1>
-            <p className="text-gray-700 mb-6">
-              The organization you're looking for doesn't exist.
-            </p>
+                          <p className="text-gray-700 mb-6">
+                The organization you&apos;re looking for doesn&apos;t exist.
+              </p>
             <Link
               href="/"
               className="inline-block bg-zinc-900 text-gray-800 px-6 py-3 rounded-lg font-medium hover:bg-zinc-800 transition-colors"
@@ -831,22 +832,16 @@ export default function OrgDetailPage() {
       <div className="flex-1 p-8 lg:p-12">
         {/* Organization Header */}
         <div className="mb-8">
-          <div className="flex items-center space-x-4 mb-4">
-            <Link
-              href="/"
-              className="text-zinc-500 hover:text-zinc-700 transition-colors"
-            >
-              ← Back to Dashboard
-            </Link>
-          </div>
           
           <div className="glass-card-solid p-8">
             <div className="flex justify-between items-start mb-6">
               <div className="flex items-start space-x-6">
                 {orgData.logoIpfsCid ? (
-                  <img
+                  <Image
                     src={`https://thirdstorage.cloud/gateway/${orgData.logoIpfsCid}`}
                     alt={`${orgData.name} logo`}
+                    width={80}
+                    height={80}
                     className="w-20 h-20 rounded-xl object-cover border border-gray-200 shadow-sm"
                     onError={(e) => {
                       e.target.style.display = 'none';
@@ -880,17 +875,17 @@ export default function OrgDetailPage() {
             </div>
 
             <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-              <div className="flex rounded-lg p-4">
+              <div className="flex flex-col rounded-lg p-4">
                 <div className="text-sm text-zinc-500 mb-1">Organization ID</div>
                 <div className="font-mono text-sm text-gray-800">{orgId}</div>
               </div>
-              <div className="flex rounded-lg p-4">
+              <div className="flex flex-col rounded-lg p-4">
                 <div className="text-sm text-zinc-500 mb-1">Your Role</div>
                 <div className="font-medium text-gray-800">
                   {isOwner ? 'Owner' : isModerator ? 'Moderator' : 'Member'}
                 </div>
               </div>
-              <div className="flex rounded-lg p-4">
+              <div className="flex flex-col rounded-lg p-4">
                 <div className="text-sm text-zinc-500 mb-1">Quick Action</div>
                 <Link
                   href="/feedback/new"
@@ -909,23 +904,34 @@ export default function OrgDetailPage() {
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
               {/* Update Organization Logo (Owner Only) */}
               {isOwner && (
-                <div className="glass-card-solid p-8">
-                  <h3 className="text-xl font-bold text-gray-800 mb-4">
+                <div className="bg-white rounded-lg p-6 border border-zinc-200">
+                  <h2 className="text-xl font-bold text-gray-800 mb-4">
                     Update Organization Logo
-                  </h3>
-                  <form onSubmit={handleUpdateLogo} className="flex gap-3">
-                    <input
-                      type="text"
-                      value={orgLogo}
-                      onChange={(e) => setOrgLogo(e.target.value)}
-                      placeholder="Enter Codex CID for logo (e.g., QmXxX...)"
-                      className="flex-1 px-4 py-3 bg-white border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#cfc7b5] focus:border-transparent outline-none transition-colors text-gray-800 placeholder-gray-500"
-                      disabled={isUpdatingLogo || isConfirming}
-                    />
+                  </h2>
+                  <p className="text-gray-700 mb-6 text-sm">
+                    Update your organization&apos;s logo by entering a Codex CID. Logo is optional and can be updated anytime.
+                  </p>
+                  
+                  <form onSubmit={handleUpdateLogo} className="space-y-4">
+                    <div>
+                      <label htmlFor="orgLogo" className="block text-sm font-medium text-zinc-700 mb-2">
+                        Logo Codex CID
+                      </label>
+                      <input
+                        type="text"
+                        id="orgLogo"
+                        value={orgLogo}
+                        onChange={(e) => setOrgLogo(e.target.value)}
+                        placeholder="Enter Codex CID for logo (e.g., QmXxX...)"
+                        className="w-full px-4 py-3 border border-zinc-300 rounded-lg focus:ring-2 focus:ring-zinc-500 focus:border-transparent outline-none transition-colors font-mono text-sm"
+                        disabled={isUpdatingLogo || isConfirming}
+                      />
+                    </div>
+                    
                     <button
                       type="submit"
                       disabled={isUpdatingLogo || isConfirming || !orgLogo.trim()}
-                      className="px-6 py-3 bg-[#83785f] text-white rounded-lg font-semibold hover:bg-[#877f6c] transition-all transform hover:scale-105 disabled:opacity-50 disabled:cursor-not-allowed disabled:transform-none"
+                      className="w-full px-4 py-3 bg-[#83785f] text-white rounded-lg font-semibold hover:bg-[#877f6c] transition-all transform hover:scale-[1.02] disabled:opacity-50 disabled:cursor-not-allowed disabled:transform-none"
                     >
                       {isUpdatingLogo || isConfirming ? (
                         <div className="flex items-center justify-center space-x-2">
@@ -937,9 +943,6 @@ export default function OrgDetailPage() {
                       )}
                     </button>
                   </form>
-                  <p className="text-xs text-gray-500 mt-3">
-                    Upload your logo to Codex and paste the CID here. Logo is optional and can be updated anytime.
-                  </p>
                 </div>
               )}
 
@@ -971,7 +974,7 @@ export default function OrgDetailPage() {
                   <button
                     type="submit"
                     disabled={isAddingMember || isConfirming || !newMemberAddress.trim()}
-                    className="w-full px-4 py-3 bg-[#83785f] text-white rounded-lg font-semibold hover:bg-[#877f6c] transition-all transform hover:scale-105 disabled:opacity-50 disabled:cursor-not-allowed disabled:transform-none"
+                    className="w-full px-4 py-3 bg-[#83785f] text-white rounded-lg font-semibold hover:bg-[#877f6c] transition-all transform hover:scale-[1.02] disabled:opacity-50 disabled:cursor-not-allowed disabled:transform-none"
                   >
                     {isAddingMember || isConfirming ? (
                       <div className="flex items-center justify-center space-x-2">
@@ -1042,7 +1045,7 @@ export default function OrgDetailPage() {
                                 <DropdownMenuItem
                                   onClick={() => handleDropdownRemoveMember(memberAddress)}
                                   disabled={isPerformingAction && selectedMemberForAction === memberAddress}
-                                  className="text-red-600 focus:text-red-600 cursor-pointer"
+                                  className="text-[#83785f] hover:text-[#877f6c] focus:text-[#877f6c] cursor-pointer"
                                 >
                                   <UserMinus className="h-4 w-4 mr-2" />
                                   Remove Member
@@ -1056,7 +1059,7 @@ export default function OrgDetailPage() {
                                     <DropdownMenuItem
                                       onClick={() => handleDropdownRemoveModerator(memberAddress)}
                                       disabled={isPerformingAction && selectedMemberForAction === memberAddress}
-                                      className="text-orange-600 focus:text-orange-600 cursor-pointer"
+                                      className="text-[#83785f] hover:text-[#877f6c] focus:text-[#877f6c] cursor-pointer"
                                     >
                                       <ShieldOff className="h-4 w-4 mr-2" />
                                       Remove Moderator
@@ -1065,7 +1068,7 @@ export default function OrgDetailPage() {
                                     <DropdownMenuItem
                                       onClick={() => handleDropdownAddModerator(memberAddress)}
                                       disabled={isPerformingAction && selectedMemberForAction === memberAddress}
-                                      className="text-blue-600 focus:text-blue-600 cursor-pointer"
+                                      className="text-[#83785f] hover:text-[#877f6c] focus:text-[#877f6c] cursor-pointer"
                                     >
                                       <Shield className="h-4 w-4 mr-2" />
                                       Promote to Moderator

@@ -4,8 +4,9 @@ import Link from 'next/link';
 import { useState, useEffect, useMemo } from 'react';
 import { useRouter } from 'next/router';
 import toast from 'react-hot-toast';
-import { Sparkle, Home, MessageSquare, BarChart3, Settings, Wallet, LogOut, Plus, Users } from 'lucide-react';
+import { Home, MessageSquare, BarChart3, Wallet, LogOut, Plus, Users } from 'lucide-react';
 import blockies from 'ethereum-blockies';
+import Image from 'next/image';
 
 const Sidebar = () => {
   const { address, isConnected } = useAccount();
@@ -127,8 +128,8 @@ const Sidebar = () => {
         <div className="flex flex-col h-full py-6">
           {/* Logo */}
           <div className="flex justify-center mb-8">
-            <Link href="/" className="w-12 h-12 bg-black rounded-full flex items-center justify-center hover:opacity-80 transition-opacity shadow-md">
-            <Sparkle className="w-6 h-6 text-[#f4f1eb]" />
+            <Link href="/" className=" flex items-center justify-center hover:opacity-80">
+            <Image src="/logo.png" alt="Feedblock" width={40} height={40} />
             </Link>
           </div>
 
@@ -211,9 +212,11 @@ const Sidebar = () => {
                     className="w-12 h-12 rounded-full flex items-center justify-center hover:opacity-80 transition-opacity"
                     title={`Connected: ${formatAddress(address)}`}
                   >
-                    <img 
+                    <Image 
                       src={generateIdenticon(address)} 
                       alt="Address identicon" 
+                      width={40}
+                      height={40}
                       className="w-10 h-10 rounded-full"
                     />
                   </button>

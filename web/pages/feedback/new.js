@@ -11,13 +11,12 @@ import {
   ChevronLeft, 
   ChevronRight, 
   Building2, 
-  Users, 
   MessageSquare, 
   Shield, 
-  CheckCircle,
-  ArrowLeft
+  CheckCircle
 } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
+import Image from 'next/image';
 
 export default function NewFeedbackPage() {
   const { address, isConnected } = useAccount();
@@ -30,7 +29,6 @@ export default function NewFeedbackPage() {
   const [isSending, setIsSending] = useState(false);
   // No encryption state needed
   const [userOrgs, setUserOrgs] = useState([]);
-  const [orgMembers, setOrgMembers] = useState({});
   const [allOrgMetadata, setAllOrgMetadata] = useState({});
   
   // Multi-step state
@@ -59,7 +57,7 @@ export default function NewFeedbackPage() {
     enabled: !!address,
   });
 
-  // Get organization metadata for selected org
+  // Get organization metadata for selected org (unused but keeping for potential future use)
   const { data: orgMetadata } = useReadContract({
     address: CONTRACT_ADDRESS,
     abi: ORG_FEEDBACK_ABI,
@@ -176,10 +174,10 @@ export default function NewFeedbackPage() {
         ],
       });
 
-    } catch (err) {
+    } catch (error) {
       setIsSending(false);
       toast.error('Failed to send feedback');
-      console.error('Error sending feedback:', err);
+      console.error('Error sending feedback:', error);
     }
   };
 
@@ -188,22 +186,7 @@ export default function NewFeedbackPage() {
     return `${address.slice(0, 6)}...${address.slice(-4)}`;
   };
 
-  const validateReceiver = async () => {
-    if (!selectedOrgId || !receiverAddress.trim()) return;
-    
-    if (!receiverAddress.startsWith('0x') || receiverAddress.length !== 42) {
-      toast.error('Invalid Ethereum address format');
-      return;
-    }
-
-    try {
-      // This would ideally check if the receiver is a member of the org
-      // For now, we'll just validate the address format
-      toast.success('Receiver address is valid');
-    } catch (err) {
-      toast.error('Failed to validate receiver');
-    }
-  };
+  // Removed validateReceiver function as it's unused
 
   // Step configuration
   const steps = [
@@ -389,9 +372,11 @@ export default function NewFeedbackPage() {
                     >
                       <div className="flex items-center space-x-3">
                         {allOrgMetadata[selectedOrgId].logoIpfsCid ? (
-                          <img
+                          <Image
                             src={`https://www.thirdstorage.cloud/api/gateway/${allOrgMetadata[selectedOrgId].logoIpfsCid}`}
                             alt={`${allOrgMetadata[selectedOrgId].name} logo`}
+                            width={40}
+                            height={40}
                             className="w-10 h-10 rounded-lg object-cover border border-gray-200"
                             onError={(e) => {
                               e.target.style.display = 'none';

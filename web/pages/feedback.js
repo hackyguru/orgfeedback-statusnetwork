@@ -110,9 +110,9 @@ function FeedbackPageContent() {
 
   useEffect(() => {
     fetchFeedbacks();
-  }, [address]);
+  }, [address, fetchFeedbacks]);
 
-  // Test direct contract call to compare with debug script
+  // Test direct contract call to compare with debug script (unused but keeping for debugging)
   const { data: totalFeedbackCount } = useReadContract({
     address: CONTRACT_ADDRESS,
     abi: ORG_FEEDBACK_ABI,
@@ -135,7 +135,7 @@ function FeedbackPageContent() {
 
 
 
-  // Get feedback count for stats
+  // Get feedback count for stats (unused but keeping for potential future use)
   const { data: feedbackCount } = useReadContract({
     address: CONTRACT_ADDRESS,
     abi: ORG_FEEDBACK_ABI,

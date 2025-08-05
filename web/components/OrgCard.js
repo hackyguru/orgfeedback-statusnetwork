@@ -1,4 +1,5 @@
 import Link from 'next/link';
+import Image from 'next/image';
 import { useState, useEffect } from 'react';
 import { useReadContract } from 'wagmi';
 import { CONTRACT_ADDRESS } from '@/lib/config';
@@ -57,9 +58,11 @@ const OrgCard = ({ orgId, isOwner = false }) => {
       <div className="mb-4">
         <div className="flex items-start space-x-4 mb-3">
           {orgData.logoIpfsCid ? (
-            <img
+            <Image
               src={`https://thirdstorage.cloud/gateway/${orgData.logoIpfsCid}`}
               alt={`${orgData.name} logo`}
+              width={48}
+              height={48}
               className="w-12 h-12 rounded-lg object-cover border border-gray-200"
               onError={(e) => {
                 e.target.style.display = 'none';
